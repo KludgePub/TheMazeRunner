@@ -53,17 +53,17 @@ func (m *Map) fillMaze(row, column int) {
 				m.walls.horizontal[row][column] = 0
 				m.fillMaze(row-1, column)
 			}
-		case lf:
+		case left:
 			if column > 0 && m.cells[row][column-1] == 0 {
 				m.walls.vertical[row][column] = 0
 				m.fillMaze(row, column-1)
 			}
-		case dn:
+		case down:
 			if row < len(m.cells)-1 && m.cells[row+1][column] == 0 {
 				m.walls.horizontal[row+1][column] = 0
 				m.fillMaze(row+1, column)
 			}
-		case rt:
+		case right:
 			if column < len(m.cells[0])-1 && m.cells[row][column+1] == 0 {
 				m.walls.vertical[row][column+1] = 0
 				m.fillMaze(row, column+1)
@@ -74,8 +74,8 @@ func (m *Map) fillMaze(row, column int) {
 
 // String parsing maze map to text interpretation
 func (m *Map) String() string {
-	rightCorner := []byte(fmt.Sprintf("%v\n", corner))
-	rightWall := []byte(fmt.Sprintf("%v\n", verticalWall))
+	rightCorner := []byte(fmt.Sprintf("%c\n", corner))
+	rightWall := []byte(fmt.Sprintf("%c\n", verticalWall))
 
 	var b []byte
 

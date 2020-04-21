@@ -2,7 +2,7 @@ package maze
 
 const (
 	up = iota
-	dn
-	rt
-	lf
+	down
+	right
+	left
 )

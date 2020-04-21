@@ -12,7 +12,7 @@ func main()  {
 
 	rand.Seed(time.Now().UnixNano())
 
-	m := maze.NewMaze(2, 2)
+	m := maze.NewMaze(10, 10)
 	m.Generate()
 
 	fmt.Println(m)
