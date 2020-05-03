@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/LinMAD/TheMazeRunnerServer/maze"
 	"math/rand"
 	"time"
+
+	"github.com/LinMAD/TheMazeRunnerServer/maze"
 )
 
 func main()  {
@@ -12,7 +13,7 @@ func main()  {
 
 	rand.Seed(time.Now().UnixNano())
 
-	m := maze.NewMaze(10, 10)
+	m := maze.NewMaze(3, 3)
 	m.Generate()
 
 	fmt.Println(m)

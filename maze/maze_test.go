@@ -1,6 +1,14 @@
 package maze
 
-import "testing"
+import (
+	"math/rand"
+	"testing"
+	"time"
+)
+
+func init()  {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func TestNewMaze(t *testing.T) {
 	m := NewMaze(1, 1)
