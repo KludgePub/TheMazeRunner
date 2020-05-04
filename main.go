@@ -8,13 +8,22 @@ import (
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 )
 
-func main()  {
-	fmt.Printf("\n%s\n\n", "The maze runner")
-
+func init()  {
+	fmt.Printf("\n%s\n", "-> Initilizing the maze server...")
 	rand.Seed(time.Now().UnixNano())
+}
 
-	m := maze.NewMaze(3, 3)
+func main()  {
+	fmt.Println("-> Generating new maze...")
+
+	r, c := 3, 3 // Size of maze map
+	m := maze.NewMaze(r, c)
 	m.Generate()
 
+	fmt.Println("-> Maze ready...")
+	fmt.Println("- Bytes map:\n", m.Container)
+	fmt.Println("- Visual map: ")
 	fmt.Println(m)
+
+	// TODO Execute API for players to remotely control game
 }

@@ -13,8 +13,8 @@ func init()  {
 func TestNewMaze(t *testing.T) {
 	m := NewMaze(1, 1)
 
-	if len(m.cells) != 1 * 1 {
-		t.Error("Maze map must have cells rows * cols")
+	if len(m.Container) != 1 * 1 {
+		t.Error("Maze map must have Container rows * cols")
 	}
 
 	for row, horizonWalls := range m.walls.horizontal {

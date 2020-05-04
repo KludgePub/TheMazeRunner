@@ -20,10 +20,12 @@ func Solve()  {
 	clothes["pants"] = g.MakeNode()
 	clothes["shoes"] = g.MakeNode()
 	clothes["socks"] = g.MakeNode()
+
 	// Make references back to the string values
 	for key, node := range clothes {
 		*node.Value = key
 	}
+
 	// Connect the elements
 	g.MakeEdge(clothes["shirt"], clothes["tie"])
 	g.MakeEdge(clothes["tie"], clothes["jacket"])
