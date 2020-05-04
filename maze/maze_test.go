@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-func init()  {
+func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
 func TestNewMaze(t *testing.T) {
 	m := NewMaze(1, 1)
 
-	if len(m.Container) != 1 * 1 {
+	if len(m.Container) != 1*1 {
 		t.Error("Maze map must have Container rows * cols")
 	}
 

@@ -8,15 +8,15 @@ import (
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 )
 
-func init()  {
+func init() {
 	fmt.Printf("\n%s\n", "-> Initilizing the maze server...")
 	rand.Seed(time.Now().UnixNano())
 }
 
-func main()  {
+func main() {
 	fmt.Println("-> Generating new maze...")
 
-	r, c := 3, 3 // Size of maze map
+	r, c := 2, 2 // Size of maze map
 	m := maze.NewMaze(r, c)
 	m.Generate()
 

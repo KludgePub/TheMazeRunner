@@ -2,13 +2,13 @@ package maze
 
 // map single props
 const (
-	verticalWall = '|'
+	verticalWall   = '|'
 	horizontalWall = '-'
-    corner = '+'
-    emptySpace = ' '
-    startingPoint = 'S'
-    endingPoint = 'E'
-    keyPoint = 'K'
+	corner         = '+'
+	emptySpace     = ' '
+	startingPoint  = 'S'
+	endingPoint    = 'E'
+	keyPoint       = 'K'
 	// TODO doors, traps, items?
 )
 

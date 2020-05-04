@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
-
-	"github.com/LinMAD/TheMazeRunnerServer/maze/search"
 )
 
 // Map by rows
 type Map struct {
 	// Container of rows and columns
 	Container [][]byte
+	// size of rows and columns
+	size int
 	// walls props
 	walls walls
 	// Key need to open exit
@@ -38,9 +38,16 @@ type location struct {
 // NewMaze generates a new map
 func NewMaze(rows, cols int) *Map {
 	// Init maze matrix and fill walls inside
-	c := make([]byte, rows*cols)
-	h := bytes.Repeat([]byte{horizontalWall}, rows*cols)
-	v := bytes.Repeat([]byte{verticalWall}, rows*cols)
+	m := &Map{
+		size:     rows * cols,
+		Key:      location{},
+		Entrance: location{},
+		Exit:     location{},
+	}
+
+	c := make([]byte, m.size)
+	h := bytes.Repeat([]byte{horizontalWall}, m.size)
+	v := bytes.Repeat([]byte{verticalWall}, m.size)
 
 	c2 := make([][]byte, rows)
 	h2 := make([][]byte, rows)
@@ -52,13 +59,10 @@ func NewMaze(rows, cols int) *Map {
 		v2[i] = v[i*cols : (i+1)*cols]
 	}
 
-	return &Map{
-		c2,
-		walls{horizontal: h2, vertical: v2},
-		location{},
-		location{},
-		location{},
-	}
+	m.Container = c2
+	m.walls = walls{horizontal: h2, vertical: v2}
+
+	return m
 }
 
 // Generate map
@@ -100,7 +104,7 @@ func (m *Map) Generate() {
 		}
 	}
 
-	search.Solve()
+	Solve(m)
 }
 
 // fillMaze will runs recursively to construct maze
@@ -140,7 +144,9 @@ func (m *Map) String() string {
 
 	var b []byte
 
+	// Make visual map, for each row and column and construct visual relation between sections
 	for row, horizonWalls := range m.walls.horizontal {
+
 		for _, h := range horizonWalls {
 			if h == horizontalWall || row == 0 {
 				b = append(b, horizontalWallTile...)
@@ -173,6 +179,7 @@ func (m *Map) String() string {
 		b = append(b, rightWall...)
 	}
 
+	// End of visual map
 	for range m.walls.horizontal[0] {
 		b = append(b, horizontalWallTile...)
 	}
