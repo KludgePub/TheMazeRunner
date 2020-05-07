@@ -16,7 +16,8 @@ func init() {
 func main() {
 	fmt.Println("-> Generating new maze...")
 
-	r, c := 2, 2 // Size of maze map
+	// Size of maze map
+	r, c := 2, 2
 	m := maze.NewMaze(r, c)
 	m.Generate()
 

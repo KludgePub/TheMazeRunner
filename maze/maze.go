@@ -6,48 +6,45 @@ import (
 	"math/rand"
 )
 
-// Map by rows
+// MazeMap by rows
 type Map struct {
 	// Container of rows and columns
 	Container [][]byte
-	// size of rows and columns
-	size int
-	// walls props
-	walls walls
-	// Key need to open exit
-	Key location
-	// Entrance to the maze
-	Entrance location
-	// Exit from maze
-	Exit location
+	// Size of rows and columns
+	Size, Height, Width int
+	// Walls props
+	Walls Walls
+	// Key, Entrance, Exit locations
+	Key, Entrance, Exit location
 }
 
-type walls struct {
-	horizontal [][]byte // ignore first row
-	vertical   [][]byte // ignore first of each column
+// Walls inside maze map
+type Walls struct {
+	// Horizontal, Vertical wall, ignore first row
+	Horizontal, Vertical [][]byte
 }
 
 // location shows object position
 type location struct {
-	// row in Map.Container[row]
-	row int
-	// col in Map.Container[row][col]
-	col int
+	// row, col in MazeMap.Container[row][col]
+	row, col int
 }
 
 // NewMaze generates a new map
 func NewMaze(rows, cols int) *Map {
-	// Init maze matrix and fill walls inside
+	// Init maze matrix and fill Walls inside
 	m := &Map{
-		size:     rows * cols,
+		Size:     rows * cols,
+		Height:   cols,
+		Width:    rows,
 		Key:      location{},
 		Entrance: location{},
 		Exit:     location{},
 	}
 
-	c := make([]byte, m.size)
-	h := bytes.Repeat([]byte{horizontalWall}, m.size)
-	v := bytes.Repeat([]byte{verticalWall}, m.size)
+	c := make([]byte, m.Size)
+	h := bytes.Repeat([]byte{horizontalWall}, m.Size)
+	v := bytes.Repeat([]byte{verticalWall}, m.Size)
 
 	c2 := make([][]byte, rows)
 	h2 := make([][]byte, rows)
@@ -60,7 +57,7 @@ func NewMaze(rows, cols int) *Map {
 	}
 
 	m.Container = c2
-	m.walls = walls{horizontal: h2, vertical: v2}
+	m.Walls = Walls{Horizontal: h2, Vertical: v2}
 
 	return m
 }
@@ -81,19 +78,21 @@ func (m *Map) Generate() {
 		kProp := m.Container[m.Key.row][m.Key.col]
 
 		if eProp != endingPoint {
-			m.Exit.col = rand.Intn(width)
+			m.Exit.row = rand.Intn(width)
 			m.Exit.col = rand.Intn(width)
 
+			eProp := m.Container[m.Exit.row][m.Exit.col]
 			if eProp != startingPoint && eProp != keyPoint {
 				m.Container[m.Exit.row][m.Exit.col], eProp = endingPoint, endingPoint
 			}
 		}
 
-		if kProp != endingPoint {
+		if kProp != keyPoint {
 			// TODO Tweak location to be on opposite site from ending point
-			m.Key.col = rand.Intn(width)
+			m.Key.row = rand.Intn(width)
 			m.Key.col = rand.Intn(width)
 
+			kProp := m.Container[m.Key.row][m.Key.col]
 			if kProp != startingPoint && kProp != endingPoint {
 				m.Container[m.Key.row][m.Key.col], kProp = keyPoint, keyPoint
 			}
@@ -103,8 +102,6 @@ func (m *Map) Generate() {
 			break
 		}
 	}
-
-	Solve(m)
 }
 
 // fillMaze will runs recursively to construct maze
@@ -115,22 +112,22 @@ func (m *Map) fillMaze(startW, startH int) {
 		switch direction {
 		case up:
 			if startW > 0 && m.Container[startW-1][startH] == 0 {
-				m.walls.horizontal[startW][startH] = 0
+				m.Walls.Horizontal[startW][startH] = 0
 				m.fillMaze(startW-1, startH)
 			}
 		case left:
 			if startH > 0 && m.Container[startW][startH-1] == 0 {
-				m.walls.vertical[startW][startH] = 0
+				m.Walls.Vertical[startW][startH] = 0
 				m.fillMaze(startW, startH-1)
 			}
 		case down:
 			if startW < len(m.Container)-1 && m.Container[startW+1][startH] == 0 {
-				m.walls.horizontal[startW+1][startH] = 0
+				m.Walls.Horizontal[startW+1][startH] = 0
 				m.fillMaze(startW+1, startH)
 			}
 		case right:
 			if startH < len(m.Container[0])-1 && m.Container[startW][startH+1] == 0 {
-				m.walls.vertical[startW][startH+1] = 0
+				m.Walls.Vertical[startW][startH+1] = 0
 				m.fillMaze(startW, startH+1)
 			}
 		}
@@ -145,32 +142,26 @@ func (m *Map) String() string {
 	var b []byte
 
 	// Make visual map, for each row and column and construct visual relation between sections
-	for row, horizonWalls := range m.walls.horizontal {
+	for row, horizonWalls := range m.Walls.Horizontal {
 
 		for _, h := range horizonWalls {
 			if h == horizontalWall || row == 0 {
 				b = append(b, horizontalWallTile...)
 			} else {
 				b = append(b, horizontalOpenTile...)
-				if h != horizontalWall && h != 0 {
-					b[len(b)-2] = h
-				}
 			}
 		}
 
 		b = append(b, rightCorner...)
 
-		for column, verticalWalls := range m.walls.vertical[row] {
+		for column, verticalWalls := range m.Walls.Vertical[row] {
 			if verticalWalls == verticalWall || column == 0 {
 				b = append(b, verticalWallTile...)
 			} else {
 				b = append(b, verticalOpenTile...)
-				if verticalWalls != verticalWall && verticalWalls != 0 {
-					b[len(b)-4] = verticalWalls
-				}
 			}
 
-			// draw cell contents
+			// draw object inside this cell
 			if m.Container[row][column] != 0 {
 				b[len(b)-2] = m.Container[row][column]
 			}
@@ -180,7 +171,7 @@ func (m *Map) String() string {
 	}
 
 	// End of visual map
-	for range m.walls.horizontal[0] {
+	for range m.Walls.Horizontal[0] {
 		b = append(b, horizontalWallTile...)
 	}
 

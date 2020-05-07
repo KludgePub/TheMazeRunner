@@ -17,22 +17,22 @@ func TestNewMaze(t *testing.T) {
 		t.Error("Maze map must have Container rows * cols")
 	}
 
-	for row, horizonWalls := range m.walls.horizontal {
+	for row, horizonWalls := range m.Walls.Horizontal {
 		for _, h := range horizonWalls {
 			if h != horizontalWall {
-				t.Error("Pure maze must have all horizontal walls")
+				t.Error("Initial maze must have all Horizontal Walls")
 			}
 		}
 
-		for _, verticalWalls := range m.walls.vertical[row] {
+		for _, verticalWalls := range m.Walls.Vertical[row] {
 			if verticalWalls != verticalWall {
-				t.Error("Pure maze must have all vertical walls")
+				t.Error("Initial maze must have all Vertical Walls")
 			}
 		}
 	}
 }
 
-func TestNewMaze2x2(t *testing.T) {
+func TestNewMaze_2x2(t *testing.T) {
 	m := NewMaze(2, 2)
 	m.Generate()
 
@@ -44,7 +44,7 @@ func TestNewMaze2x2(t *testing.T) {
 	t.Logf("\nMaze 2x2: \n%s", mazeStr)
 }
 
-func TestNewMaze5x5(t *testing.T) {
+func TestNewMaze_5x5(t *testing.T) {
 	m := NewMaze(5, 5)
 	m.Generate()
 

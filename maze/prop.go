@@ -9,7 +9,7 @@ const (
 	startingPoint  = 'S'
 	endingPoint    = 'E'
 	keyPoint       = 'K'
-	// TODO doors, traps, items?
+	// TODO doors, traps?
 )
 
 // map tiles
