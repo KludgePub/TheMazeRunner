@@ -103,6 +103,8 @@ func (m *Map) Generate() {
 			break
 		}
 	}
+
+	// TODO Validate if maze can be solved: Check path from Start => Key => End
 }
 
 // fillMaze will runs recursively to construct maze
