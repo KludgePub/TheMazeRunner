@@ -4,6 +4,8 @@ import (
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
 )
 
 func init() {
@@ -19,13 +21,13 @@ func TestNewMaze(t *testing.T) {
 
 	for row, horizonWalls := range m.Walls.Horizontal {
 		for _, h := range horizonWalls {
-			if h != horizontalWall {
+			if h != asset.HorizontalWall {
 				t.Error("Initial maze must have all Horizontal Walls")
 			}
 		}
 
 		for _, verticalWalls := range m.Walls.Vertical[row] {
-			if verticalWalls != verticalWall {
+			if verticalWalls != asset.VerticalWall {
 				t.Error("Initial maze must have all Vertical Walls")
 			}
 		}
@@ -36,7 +38,7 @@ func TestNewMaze_2x2(t *testing.T) {
 	m := NewMaze(2, 2)
 	m.Generate()
 
-	mazeStr := m.String()
+	mazeStr := PrintMaze(m)
 	if len(mazeStr) == 0 {
 		t.Error("Maze is empty")
 	}
@@ -48,7 +50,7 @@ func TestNewMaze_5x5(t *testing.T) {
 	m := NewMaze(5, 5)
 	m.Generate()
 
-	mazeStr := m.String()
+	mazeStr := PrintMaze(m)
 	if len(mazeStr) == 0 {
 		t.Error("Maze is empty")
 	}

@@ -2,8 +2,9 @@ package maze
 
 import (
 	"bytes"
-	"fmt"
 	"math/rand"
+
+	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
 )
 
 // MazeMap by rows
@@ -43,8 +44,8 @@ func NewMaze(rows, cols int) *Map {
 	}
 
 	c := make([]byte, m.Size)
-	h := bytes.Repeat([]byte{horizontalWall}, m.Size)
-	v := bytes.Repeat([]byte{verticalWall}, m.Size)
+	h := bytes.Repeat([]byte{asset.HorizontalWall}, m.Size)
+	v := bytes.Repeat([]byte{asset.VerticalWall}, m.Size)
 
 	c2 := make([][]byte, rows)
 	h2 := make([][]byte, rows)
@@ -71,34 +72,34 @@ func (m *Map) Generate() {
 
 	m.Entrance.row = rand.Intn(height)
 	m.Entrance.col = rand.Intn(width)
-	m.Container[m.Entrance.row][m.Entrance.col] = startingPoint
+	m.Container[m.Entrance.row][m.Entrance.col] = asset.StartingPoint
 
 	for {
 		eProp := m.Container[m.Exit.row][m.Exit.col]
 		kProp := m.Container[m.Key.row][m.Key.col]
 
-		if eProp != endingPoint {
+		if eProp != asset.EndingPoint {
 			m.Exit.row = rand.Intn(width)
 			m.Exit.col = rand.Intn(width)
 
 			eProp := m.Container[m.Exit.row][m.Exit.col]
-			if eProp != startingPoint && eProp != keyPoint {
-				m.Container[m.Exit.row][m.Exit.col], eProp = endingPoint, endingPoint
+			if eProp != asset.StartingPoint && eProp != asset.KeyPoint {
+				m.Container[m.Exit.row][m.Exit.col], eProp = asset.EndingPoint, asset.EndingPoint
 			}
 		}
 
-		if kProp != keyPoint {
+		if kProp != asset.KeyPoint {
 			// TODO Tweak location to be on opposite site from ending point
 			m.Key.row = rand.Intn(width)
 			m.Key.col = rand.Intn(width)
 
 			kProp := m.Container[m.Key.row][m.Key.col]
-			if kProp != startingPoint && kProp != endingPoint {
-				m.Container[m.Key.row][m.Key.col], kProp = keyPoint, keyPoint
+			if kProp != asset.StartingPoint && kProp != asset.EndingPoint {
+				m.Container[m.Key.row][m.Key.col], kProp = asset.KeyPoint, asset.KeyPoint
 			}
 		}
 
-		if eProp == endingPoint && kProp == keyPoint {
+		if eProp == asset.EndingPoint && kProp == asset.KeyPoint {
 			break
 		}
 	}
@@ -106,76 +107,30 @@ func (m *Map) Generate() {
 
 // fillMaze will runs recursively to construct maze
 func (m *Map) fillMaze(startW, startH int) {
-	m.Container[startW][startH] = emptySpace
+	m.Container[startW][startH] = asset.EmptySpace
 
 	for _, direction := range rand.Perm(4) {
 		switch direction {
-		case up:
+		case asset.Up:
 			if startW > 0 && m.Container[startW-1][startH] == 0 {
 				m.Walls.Horizontal[startW][startH] = 0
 				m.fillMaze(startW-1, startH)
 			}
-		case left:
+		case asset.Left:
 			if startH > 0 && m.Container[startW][startH-1] == 0 {
 				m.Walls.Vertical[startW][startH] = 0
 				m.fillMaze(startW, startH-1)
 			}
-		case down:
+		case asset.Down:
 			if startW < len(m.Container)-1 && m.Container[startW+1][startH] == 0 {
 				m.Walls.Horizontal[startW+1][startH] = 0
 				m.fillMaze(startW+1, startH)
 			}
-		case right:
+		case asset.Right:
 			if startH < len(m.Container[0])-1 && m.Container[startW][startH+1] == 0 {
 				m.Walls.Vertical[startW][startH+1] = 0
 				m.fillMaze(startW, startH+1)
 			}
 		}
 	}
-}
-
-// String parsing maze map to text interpretation
-func (m *Map) String() string {
-	rightCorner := []byte(fmt.Sprintf("%c\n", corner))
-	rightWall := []byte(fmt.Sprintf("%c\n", verticalWall))
-
-	var b []byte
-
-	// Make visual map, for each row and column and construct visual relation between sections
-	for row, horizonWalls := range m.Walls.Horizontal {
-
-		for _, h := range horizonWalls {
-			if h == horizontalWall || row == 0 {
-				b = append(b, horizontalWallTile...)
-			} else {
-				b = append(b, horizontalOpenTile...)
-			}
-		}
-
-		b = append(b, rightCorner...)
-
-		for column, verticalWalls := range m.Walls.Vertical[row] {
-			if verticalWalls == verticalWall || column == 0 {
-				b = append(b, verticalWallTile...)
-			} else {
-				b = append(b, verticalOpenTile...)
-			}
-
-			// draw object inside this cell
-			if m.Container[row][column] != 0 {
-				b[len(b)-2] = m.Container[row][column]
-			}
-		}
-
-		b = append(b, rightWall...)
-	}
-
-	// End of visual map
-	for range m.Walls.Horizontal[0] {
-		b = append(b, horizontalWallTile...)
-	}
-
-	b = append(b, rightCorner...)
-
-	return string(b)
 }

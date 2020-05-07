@@ -1,6 +1,6 @@
 package maze
 
-import "fmt"
+import "github.com/LinMAD/TheMazeRunnerServer/maze/asset"
 
 // Graph container for graph
 type Graph map[Point]*Node
@@ -39,7 +39,7 @@ func Dispatch(m *Map) Graph {
 			}
 
 			// Check right neighbor
-			if m.Width > x+1 && m.Walls.Vertical[y][x+1] != verticalWall {
+			if m.Width > x+1 && m.Walls.Vertical[y][x+1] != asset.VerticalWall {
 				var rNode *Node
 				rnp := Point{X: x + 1, Y: y}
 
@@ -56,7 +56,7 @@ func Dispatch(m *Map) Graph {
 			}
 
 			// Check bottom neighbor
-			if m.Height > y+1 && m.Walls.Horizontal[y+1][x] != horizontalWall {
+			if m.Height > y+1 && m.Walls.Horizontal[y+1][x] != asset.HorizontalWall {
 				var bNode *Node
 				bnp := Point{X: x, Y: y + 1}
 
@@ -78,19 +78,4 @@ func Dispatch(m *Map) Graph {
 	}
 
 	return graph
-}
-
-// String implementation to print node
-func (n *Node) String() string {
-	var x1, y1, x2, y2, x3, y3 = n.Point.X, n.Point.Y, -1, -1, -1, -1
-
-	if n.RightNeighbor != nil {
-		x2, y2 = n.RightNeighbor.Point.X, n.RightNeighbor.Point.Y
-	}
-
-	if n.BottomNeighbor != nil {
-		x3, y3 = n.BottomNeighbor.Point.X, n.BottomNeighbor.Point.Y
-	}
-
-	return fmt.Sprintf("%d => %d %d %d %d %d %d", n.Entity, x1, y1, x2, y2, x3, y3)
 }
