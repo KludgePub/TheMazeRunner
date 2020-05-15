@@ -15,8 +15,8 @@ func TestDispatch_BlockedMaze(t *testing.T) {
 	m.Container[1][0] = asset.EmptySpace
 	m.Container[1][1] = asset.EndingPoint
 
-	g := Dispatch(m)
-	for _, n := range g {
+	g := DispatchToGraph(m)
+	for _, n := range g.Nodes {
 		if n.BottomNeighbor != nil || n.RightNeighbor != nil {
 			t.Error("Unexpected neighbor in sealed maze")
 			t.Logf("\nMaze %dx%d: \n%s\n", m.Width, m.Height, PrintMaze(m))
@@ -44,7 +44,7 @@ func TestDispatch_SolvableMaze(t *testing.T) {
 	m.Walls.Vertical[1][1] = asset.EmptySpace
 	m.Walls.Horizontal[1][0] = asset.EmptySpace
 
-	g := Dispatch(m)
+	g := DispatchToGraph(m)
 
 	expected := make([]string, m.Size)
 	// current [x, y], right [x, y], bottom [x, y]
@@ -53,7 +53,7 @@ func TestDispatch_SolvableMaze(t *testing.T) {
 	expected[2] = "  => 0 1 1 1 -1 -1"   // empty
 	expected[3] = "E => 1 1 -1 -1 -1 -1" // end
 
-	for _, n := range g {
+	for _, n := range g.Nodes {
 		isFound := false
 		for _, e := range expected {
 			str := PrintGraphNode(n)

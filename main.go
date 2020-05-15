@@ -17,7 +17,7 @@ func main() {
 	fmt.Println("-> Generating new maze...")
 
 	// Size of maze map
-	r, c := 3, 3
+	r, c := 2, 2
 	m := maze.NewMaze(r, c)
 	m.Generate()
 
@@ -25,7 +25,7 @@ func main() {
 	fmt.Println("- Bytes map:\n", m.Container)
 	fmt.Println("- Visual map: ")
 	fmt.Println(maze.PrintMaze(m))
-	for id, n := range maze.Dispatch(m) {
+	for id, n := range maze.DispatchToGraph(m).Nodes {
 		fmt.Printf("\nNode: %d with prop: %s => neighbors:\n%s", id, string(n.Entity), maze.PrintGraphNode(n))
 	}
 
