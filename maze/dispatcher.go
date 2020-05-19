@@ -8,14 +8,11 @@ type Graph struct {
 	Nodes map[Point]*Node
 }
 
-// Point in maze matrix
-type Point struct {
-	// X, Y location
-	X, Y int
-}
-
 // Node represent single cell
 type Node struct {
+	// Visited if node was traversed
+	Visited bool
+	// Entity represent an value
 	Entity byte
 	// Point holds location
 	Point Point
@@ -23,14 +20,16 @@ type Node struct {
 	LeftNeighbor, RightNeighbor, TopNeighbor, BottomNeighbor *Node
 }
 
+// TODO REFACTOR: Swap X and Y, by X coordinate we cannot define top and bottom node
+
 // DispatchToGraph maze map to related graph
 func DispatchToGraph(m *Map) Graph {
 	graph := Graph{
-		Nodes:  make(map[Point]*Node, m.Size),
+		Nodes: make(map[Point]*Node, m.Size),
 	}
 
-	for y := 0; y < m.Height; y++ {
-		for x := 0; x < m.Width; x++ {
+	for x := 0; x < m.Height; x++ {
+		for y := 0; y < m.Width; y++ {
 			var cNode *Node
 			cPoint := Point{X: x, Y: y}
 
@@ -38,23 +37,23 @@ func DispatchToGraph(m *Map) Graph {
 				cNode = n
 			} else {
 				cNode = &Node{
-					Entity: m.Container[y][x],
+					Entity: m.Container[x][y],
 					Point:  cPoint,
 				}
 			}
 
 			// Check left neighbor
-			leftX := x-1
-			if leftX >= 0 && (leftX == 0 || m.Walls.Vertical[y][leftX] != asset.VerticalWall) {
+			leftY := y - 1
+			if leftY >= 0 && (leftY == 0 || m.Walls.Vertical[x][leftY] != asset.VerticalWall) {
 				var lNode *Node
 
-				lnp := Point{X: leftX, Y: y}
+				lnp := Point{X: x, Y: leftY}
 
 				if n, exist := graph.Nodes[lnp]; exist {
 					lNode = n
 				} else {
 					lNode = &Node{
-						Entity: m.Container[y][leftX],
+						Entity: m.Container[x][leftY],
 						Point:  lnp,
 					}
 				}
@@ -63,17 +62,17 @@ func DispatchToGraph(m *Map) Graph {
 			}
 
 			// Check right neighbor
-			rightX := x+1
-			if m.Width > rightX && m.Walls.Vertical[y][rightX] != asset.VerticalWall {
+			rightY := y + 1
+			if m.Width > rightY && m.Walls.Vertical[x][rightY] != asset.VerticalWall {
 				var rNode *Node
 
-				rnp := Point{X: rightX, Y: y}
+				rnp := Point{X: x, Y: rightY}
 
 				if n, exist := graph.Nodes[rnp]; exist {
 					rNode = n
 				} else {
 					rNode = &Node{
-						Entity: m.Container[y][rightX],
+						Entity: m.Container[x][rightY],
 						Point:  rnp,
 					}
 				}
@@ -82,17 +81,17 @@ func DispatchToGraph(m *Map) Graph {
 			}
 
 			// Check top neighbor
-			topY := y-1
-			if topY >= 0 && (topY == 0 || m.Walls.Horizontal[topY][x] != asset.HorizontalWall) {
+			topX := x - 1
+			if topX >= 0 && (topX == 0 || m.Walls.Horizontal[topX][y] != asset.HorizontalWall) {
 				var topNode *Node
 
-				tnp := Point{X: x, Y: topY}
+				tnp := Point{X: topX, Y: y}
 
 				if n, exist := graph.Nodes[tnp]; exist {
 					topNode = n
 				} else {
 					topNode = &Node{
-						Entity: m.Container[topY][x],
+						Entity: m.Container[topX][y],
 						Point:  tnp,
 					}
 				}
@@ -101,17 +100,17 @@ func DispatchToGraph(m *Map) Graph {
 			}
 
 			// Check bottom neighbor
-			bottomY := y+1
-			if m.Height > bottomY && m.Walls.Horizontal[bottomY][x] != asset.HorizontalWall {
+			bottomX := x + 1
+			if m.Height > bottomX && m.Walls.Horizontal[bottomX][y] != asset.HorizontalWall {
 				var bNode *Node
 
-				bnp := Point{X: x, Y: bottomY}
+				bnp := Point{X: bottomX, Y: y}
 
 				if n, exist := graph.Nodes[bnp]; exist {
 					bNode = n
 				} else {
 					bNode = &Node{
-						Entity: m.Container[bottomY][x],
+						Entity: m.Container[bottomX][y],
 						Point:  bnp,
 					}
 				}

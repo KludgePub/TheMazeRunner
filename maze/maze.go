@@ -16,19 +16,19 @@ type Map struct {
 	// Walls props
 	Walls Walls
 	// Key, Entrance, Exit locations
-	Key, Entrance, Exit location
+	Key, Entrance, Exit Point
 }
 
 // Walls inside maze map
 type Walls struct {
-	// Horizontal, Vertical wall, ignore first row
+	// Horizontal, Vertical wall, ignore first X
 	Horizontal, Vertical [][]byte
 }
 
-// location shows object position
-type location struct {
-	// row, col in MazeMap.Container[row][col]
-	row, col int
+// Point in maze matrix
+type Point struct {
+	// X, Y location
+	X, Y int
 }
 
 // NewMaze generates a new map
@@ -38,9 +38,9 @@ func NewMaze(rows, cols int) *Map {
 		Size:     rows * cols,
 		Height:   cols,
 		Width:    rows,
-		Key:      location{},
-		Entrance: location{},
-		Exit:     location{},
+		Key:      Point{},
+		Entrance: Point{},
+		Exit:     Point{},
 	}
 
 	c := make([]byte, m.Size)
@@ -70,32 +70,32 @@ func (m *Map) Generate() {
 
 	m.fillMaze(rand.Intn(height), rand.Intn(width))
 
-	m.Entrance.row = rand.Intn(height)
-	m.Entrance.col = rand.Intn(width)
-	m.Container[m.Entrance.row][m.Entrance.col] = asset.StartingPoint
+	m.Entrance.X = rand.Intn(height)
+	m.Entrance.Y = rand.Intn(width)
+	m.Container[m.Entrance.X][m.Entrance.Y] = asset.StartingPoint
 
 	for {
-		eProp := m.Container[m.Exit.row][m.Exit.col]
-		kProp := m.Container[m.Key.row][m.Key.col]
+		eProp := m.Container[m.Exit.X][m.Exit.Y]
+		kProp := m.Container[m.Key.X][m.Key.Y]
 
 		if eProp != asset.EndingPoint {
-			m.Exit.row = rand.Intn(width)
-			m.Exit.col = rand.Intn(width)
+			m.Exit.X = rand.Intn(width)
+			m.Exit.Y = rand.Intn(width)
 
-			eProp := m.Container[m.Exit.row][m.Exit.col]
+			eProp := m.Container[m.Exit.X][m.Exit.Y]
 			if eProp != asset.StartingPoint && eProp != asset.KeyPoint {
-				m.Container[m.Exit.row][m.Exit.col], eProp = asset.EndingPoint, asset.EndingPoint
+				m.Container[m.Exit.X][m.Exit.Y], eProp = asset.EndingPoint, asset.EndingPoint
 			}
 		}
 
 		if kProp != asset.KeyPoint {
 			// TODO Tweak location to be on opposite site from ending point
-			m.Key.row = rand.Intn(width)
-			m.Key.col = rand.Intn(width)
+			m.Key.X = rand.Intn(width)
+			m.Key.Y = rand.Intn(width)
 
-			kProp := m.Container[m.Key.row][m.Key.col]
+			kProp := m.Container[m.Key.X][m.Key.Y]
 			if kProp != asset.StartingPoint && kProp != asset.EndingPoint {
-				m.Container[m.Key.row][m.Key.col], kProp = asset.KeyPoint, asset.KeyPoint
+				m.Container[m.Key.X][m.Key.Y], kProp = asset.KeyPoint, asset.KeyPoint
 			}
 		}
 
