@@ -1,7 +1,9 @@
 package validator
 
 import (
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
@@ -130,7 +132,8 @@ func TestSolveMaze_CheckPathToExit(t *testing.T) {
 }
 
 func TestSolveMaze_RandomMaze(t *testing.T) {
-	bigMaze := maze.NewMaze(4, 4)
+	rand.Seed(time.Now().UnixNano())
+	bigMaze := maze.NewMaze(2,2)
 	bigMaze.Generate()
 
 	t.Logf("\n%s", maze.PrintMaze(bigMaze))
@@ -145,4 +148,6 @@ func TestSolveMaze_RandomMaze(t *testing.T) {
 		t.Log("Path not found")
 		t.Errorf("Path to exit:\n %v", solved.ToExit)
 	}
+
+	t.Logf("\n%s", maze.PrintMaze(solved.SolvedMap))
 }

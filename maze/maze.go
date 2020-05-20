@@ -68,10 +68,10 @@ func (m *Map) Generate() {
 	height := len(m.Container)
 	width := len(m.Container[0])
 
-	m.fillMaze(rand.Intn(height), rand.Intn(width))
+	m.fillMaze(rand.Intn(width), rand.Intn(height))
 
-	m.Entrance.X = rand.Intn(height)
-	m.Entrance.Y = rand.Intn(width)
+	m.Entrance.X = rand.Intn(width)
+	m.Entrance.Y = rand.Intn(height)
 	m.Container[m.Entrance.X][m.Entrance.Y] = asset.StartingPoint
 
 	for {

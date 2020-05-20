@@ -25,11 +25,16 @@ func SolveMaze(m maze.Map) SolvedMaze {
 		maze.Point{X: m.Entrance.X, Y: m.Entrance.Y},
 		maze.Point{X: m.Key.X, Y: m.Key.Y},
 	)
-	//solved.ToExit = seekForPath(
-	//	solved.SolvedMap,
-	//	maze.Point{X: m.Key.X, Y: m.Key.Y},
-	//	maze.Point{X: m.Exit.X, Y: m.Exit.Y},
-	//)
+
+	solved.ToExit = seekForPath(
+		solved.SolvedMap,
+		maze.Point{X: m.Key.X, Y: m.Key.Y},
+		maze.Point{X: m.Exit.X, Y: m.Exit.Y},
+	)
+
+	for _, p := range solved.ToKey {
+		solved.SolvedMap.Container[p.X][p.Y] = '.'
+	}
 
 	return solved
 }
