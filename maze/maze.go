@@ -68,7 +68,7 @@ func (m *Map) Generate() {
 	height := len(m.Container)
 	width := len(m.Container[0])
 
-	m.fillMaze(rand.Intn(width), rand.Intn(height))
+	m.fillMaze(rand.Intn(height), rand.Intn(width))
 
 	m.Entrance.X = rand.Intn(width)
 	m.Entrance.Y = rand.Intn(height)
@@ -108,30 +108,30 @@ func (m *Map) Generate() {
 }
 
 // fillMaze will runs recursively to construct maze
-func (m *Map) fillMaze(startW, startH int) {
-	m.Container[startW][startH] = asset.EmptySpace
+func (m *Map) fillMaze(startH, startW int) {
+	m.Container[startH][startW] = asset.EmptySpace
 
 	for _, direction := range rand.Perm(4) {
 		switch direction {
 		case asset.Up:
-			if startW > 0 && m.Container[startW-1][startH] == 0 {
-				m.Walls.Horizontal[startW][startH] = 0
-				m.fillMaze(startW-1, startH)
-			}
-		case asset.Left:
-			if startH > 0 && m.Container[startW][startH-1] == 0 {
-				m.Walls.Vertical[startW][startH] = 0
-				m.fillMaze(startW, startH-1)
+			if startH > 0 && m.Container[startH-1][startW] == 0 {
+				m.Walls.Horizontal[startH][startW] = 0
+				m.fillMaze(startH-1, startW)
 			}
 		case asset.Down:
-			if startW < len(m.Container)-1 && m.Container[startW+1][startH] == 0 {
-				m.Walls.Horizontal[startW+1][startH] = 0
-				m.fillMaze(startW+1, startH)
+			if startH < len(m.Container)-1 && m.Container[startH+1][startW] == 0 {
+				m.Walls.Horizontal[startH+1][startW] = 0
+				m.fillMaze(startH+1, startW)
+			}
+		case asset.Left:
+			if startW > 0 && m.Container[startH][startW-1] == 0 {
+				m.Walls.Vertical[startH][startW] = 0
+				m.fillMaze(startH, startW-1)
 			}
 		case asset.Right:
-			if startH < len(m.Container[0])-1 && m.Container[startW][startH+1] == 0 {
-				m.Walls.Vertical[startW][startH+1] = 0
-				m.fillMaze(startW, startH+1)
+			if startW < len(m.Container[0])-1 && m.Container[startH][startW+1] == 0 {
+				m.Walls.Vertical[startH][startW+1] = 0
+				m.fillMaze(startH, startW+1)
 			}
 		}
 	}

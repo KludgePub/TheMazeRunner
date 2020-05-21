@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
-	"github.com/LinMAD/TheMazeRunnerServer/validator"
 )
 
 func init() {
@@ -18,7 +17,7 @@ func main() {
 	fmt.Println("-> Generating new maze...")
 
 	// Size of maze map
-	r, c := 2,2
+	r, c := 2, 2
 	m := maze.NewMaze(r, c)
 	m.Generate()
 
@@ -35,10 +34,10 @@ func main() {
 	}
 
 	fmt.Println("\nDebug solved maze")
-	solved := validator.SolveMaze(*m)
-	fmt.Println(maze.PrintMaze(solved.SolvedMap))
-	fmt.Printf("\nPath can be solved (%v) from Start to Key:\n%v", validator.IsPathPossible(solved.ToKey, g), solved.ToKey)
-	fmt.Printf("\nPath can be solved (%v) from Key to Exit:\n%v", validator.IsPathPossible(solved.ToExit, g),solved.ToExit)
+	//solved := validator.SolvePath(*m)
+	//fmt.Println(maze.PrintMaze(solved.SolvedMap))
+	//fmt.Printf("\nPath can be solved (%v) from Start to Key:\n%v", validator.IsPathPossible(solved.ToKey, g), solved.ToKey)
+	//fmt.Printf( "\nPath can be solved (%v) from Key to Exit:\n%v", validator.IsPathPossible(solved.ToExit, g), solved.ToExit)
 
 	// TODO Execute API for players to remotely control game
 }

@@ -2,6 +2,7 @@ package validator
 
 import (
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
+	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
 )
 
 // SolvedMaze maze and road paths
@@ -12,31 +13,26 @@ type SolvedMaze struct {
 	ToKey, ToExit []maze.Point
 }
 
-// SolveMaze show path in map
-func SolveMaze(m maze.Map) SolvedMaze {
-	solved := SolvedMaze{
-		SolvedMap: &m,
-		ToKey:     make([]maze.Point, 1),
-		ToExit:    make([]maze.Point, 1),
-	}
+// SolvePath show path in map
+func SolvePath(m maze.Map, from, to maze.Point, showPath bool) []maze.Point {
+	path := []maze.Point{{
+		X: from.X,
+		Y: from.Y,
+	}}
 
-	solved.ToKey = seekForPath(
-		solved.SolvedMap,
-		maze.Point{X: m.Entrance.X, Y: m.Entrance.Y},
-		maze.Point{X: m.Key.X, Y: m.Key.Y},
+	path = seekForPath(
+		&m,
+		maze.Point{X: from.X, Y: from.Y},
+		maze.Point{X: to.X, Y: to.Y},
 	)
 
-	solved.ToExit = seekForPath(
-		solved.SolvedMap,
-		maze.Point{X: m.Key.X, Y: m.Key.Y},
-		maze.Point{X: m.Exit.X, Y: m.Exit.Y},
-	)
-
-	for _, p := range solved.ToKey {
-		solved.SolvedMap.Container[p.X][p.Y] = '.'
+	if showPath {
+		for _, p := range path {
+			m.Container[p.X][p.Y] = asset.FootPrint
+		}
 	}
 
-	return solved
+	return path
 }
 
 // seekForPath in recursion
@@ -50,9 +46,7 @@ func seekForPath(m *maze.Map, from, to maze.Point) []maze.Point {
 	isCanMove = func(g *maze.Graph, cNode *maze.Node, endPoint maze.Point) bool {
 		if cNode.Visited {
 			return false
-		}
-
-		if cNode.Point == endPoint {
+		} else if cNode.Point == endPoint {
 			return true
 		}
 
@@ -61,33 +55,41 @@ func seekForPath(m *maze.Map, from, to maze.Point) []maze.Point {
 		if cNode.TopNeighbor != nil {
 			stack = append(stack, cNode.TopNeighbor.Point)
 
-			if !isCanMove(g, g.Nodes[cNode.TopNeighbor.Point], to) {
-				stack = stack[:len(stack) - 1]
+			if isCanMove(g, g.Nodes[cNode.TopNeighbor.Point], to) {
+				return true
 			}
+
+			stack = stack[:len(stack)-1]
 		}
 
 		if cNode.BottomNeighbor != nil {
 			stack = append(stack, cNode.BottomNeighbor.Point)
 
-			if !isCanMove(g, g.Nodes[cNode.BottomNeighbor.Point], to) {
-				stack = stack[:len(stack) - 1]
+			if isCanMove(g, g.Nodes[cNode.BottomNeighbor.Point], to) {
+				return true
 			}
+
+			stack = stack[:len(stack)-1]
 		}
 
 		if cNode.RightNeighbor != nil {
 			stack = append(stack, cNode.RightNeighbor.Point)
 
-			if !isCanMove(g, g.Nodes[cNode.RightNeighbor.Point], to) {
-				stack = stack[:len(stack) - 1]
+			if isCanMove(g, g.Nodes[cNode.RightNeighbor.Point], to) {
+				return true
 			}
+
+			stack = stack[:len(stack)-1]
 		}
 
 		if cNode.LeftNeighbor != nil {
 			stack = append(stack, cNode.LeftNeighbor.Point)
 
-			if !isCanMove(g, g.Nodes[cNode.LeftNeighbor.Point], to) {
-				stack = stack[:len(stack) - 1]
+			if isCanMove(g, g.Nodes[cNode.LeftNeighbor.Point], to) {
+				return true
 			}
+
+			stack = stack[:len(stack)-1]
 		}
 
 		return false
@@ -95,7 +97,7 @@ func seekForPath(m *maze.Map, from, to maze.Point) []maze.Point {
 
 	for _, n := range g.Nodes {
 		if n.Point == from {
-			isCanMove(&g, n, to)
+			isCanMove(g, n, to)
 			break
 		}
 	}
@@ -104,7 +106,7 @@ func seekForPath(m *maze.Map, from, to maze.Point) []maze.Point {
 }
 
 // IsPathPossible validate if given path by points is possible in maze
-func IsPathPossible(path []maze.Point, g maze.Graph) bool {
+func IsPathPossible(path []maze.Point, g *maze.Graph) bool {
 	if len(path) <= 1 {
 		return false
 	}
@@ -133,15 +135,13 @@ func IsPathPossible(path []maze.Point, g maze.Graph) bool {
 	if isPointsValid {
 		for i := 0; i < len(path); i += 2 {
 			var to maze.Point
-			from := g.Nodes[path[i]]
-
 			if i+1 >= len(path) {
 				to = path[i]
 			} else {
 				to = path[i+1]
 			}
 
-			if isPossibleToPass(from, to) {
+			if isPossibleToPass(g.Nodes[path[i]], to) {
 				continue
 			}
 
@@ -153,7 +153,7 @@ func IsPathPossible(path []maze.Point, g maze.Graph) bool {
 }
 
 // canMove validate movement
-func isPossibleToPass(from *maze.Node, to maze.Point) (isCanMove bool) {
+func isPossibleToPass(from *maze.Node, to maze.Point) bool {
 	// Check if we can move to left
 	if from.LeftNeighbor != nil {
 		if from.LeftNeighbor.Point.X == to.X && from.LeftNeighbor.Point.Y == to.Y {

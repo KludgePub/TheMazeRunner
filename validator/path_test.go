@@ -11,10 +11,10 @@ import (
 
 var (
 	m *maze.Map
-	g maze.Graph
+	g *maze.Graph
 )
 
-func init()  {
+func prepare(t *testing.T) {
 	m = maze.NewMaze(2, 2)
 
 	/* Test maze
@@ -25,7 +25,7 @@ func init()  {
 	+---+---+
 	*/
 	m.Entrance = maze.Point{X: 0, Y: 0}
-	m.Key = maze.Point{X: 1, Y: 0}
+	m.Key = maze.Point{X: 0, Y: 1}
 	m.Exit = maze.Point{X: 1, Y: 1}
 
 	m.Container[0][0] = asset.StartingPoint
@@ -38,9 +38,14 @@ func init()  {
 	m.Walls.Horizontal[1][1] = asset.EmptySpace
 
 	g = maze.DispatchToGraph(m)
+
+
+	t.Logf("\n%s", maze.PrintMaze(m))
 }
 
 func TestIsPathPossible_EmptyOrOneMove(t *testing.T) {
+	prepare(t)
+
 	// Empty path
 	if IsPathPossible(make([]maze.Point, 0), g) == true {
 		t.Error("It's impossible to findPath if moving path is empty")
@@ -51,6 +56,8 @@ func TestIsPathPossible_EmptyOrOneMove(t *testing.T) {
 	}
 }
 func TestIsPathPossible_WallBangMove(t *testing.T) {
+	prepare(t)
+
 	path := make([]maze.Point, 2)
 
 	for _, n := range g.Nodes {
@@ -68,9 +75,8 @@ func TestIsPathPossible_WallBangMove(t *testing.T) {
 	}
 }
 
-
 func TestIsPathPossible_MoveTwoSteps(t *testing.T) {
-	t.Logf("\n%s", maze.PrintMaze(m))
+	prepare(t)
 
 	// Get starting point of maze
 	path := make([]maze.Point, 2)
@@ -90,7 +96,7 @@ func TestIsPathPossible_MoveTwoSteps(t *testing.T) {
 }
 
 func TestIsPathPossible_MoveWithTurns(t *testing.T) {
-	t.Logf("\n%s", maze.PrintMaze(m))
+	prepare(t)
 
 	path := make([]maze.Point, 4)
 
@@ -116,38 +122,45 @@ func TestIsPathPossible_MoveWithTurns(t *testing.T) {
 }
 
 func TestSolveMaze_CheckPathToKey(t *testing.T) {
-	t.Logf("\n%s", maze.PrintMaze(m))
-	solved := SolveMaze(*m)
-	if IsPathPossible(solved.ToKey, g) == false {
-		t.Errorf("Path to key must be found, given path:\n%v", solved.ToKey)
+	prepare(t)
+
+	solved := SolvePath(*m, m.Entrance, m.Key, true)
+	t.Logf("Path:\n%v", solved)
+
+	if IsPathPossible(solved, g) == false {
+		t.Error("Path to key must be found")
 	}
+
+	t.Logf("\n%s", maze.PrintMaze(m))
 }
 
 func TestSolveMaze_CheckPathToExit(t *testing.T) {
-	t.Logf("\n%s", maze.PrintMaze(m))
-	solved := SolveMaze(*m)
-	if IsPathPossible(solved.ToExit, g) == false {
-		t.Errorf("Path to exit must be found, given path:\n%v", solved.ToExit)
+	prepare(t)
+
+	solved := SolvePath(*m, m.Key, m.Exit, true)
+	t.Logf("Path:\n%v", solved)
+
+	if IsPathPossible(solved, g) == false {
+		t.Error("Path to exit must be found")
 	}
+
+	t.Logf("\n%s", maze.PrintMaze(m))
 }
 
 func TestSolveMaze_RandomMaze(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
-	bigMaze := maze.NewMaze(2,2)
+	bigMaze := maze.NewMaze(4,4)
 	bigMaze.Generate()
 
 	t.Logf("\n%s", maze.PrintMaze(bigMaze))
 
-	solved := SolveMaze(*bigMaze)
+	t.Logf("S x,y: %v and K x,y: %v", bigMaze.Entrance, bigMaze.Key)
+	solved := SolvePath(*bigMaze, bigMaze.Entrance, bigMaze.Key, true)
+	t.Logf("Path:%v", solved)
 
-	if IsPathPossible(solved.ToKey, g) == false {
-		t.Log("Path not found")
-		t.Errorf("Path to key:\n %v", solved.ToKey)
-	}
-	if IsPathPossible(solved.ToExit, g) == false {
-		t.Log("Path not found")
-		t.Errorf("Path to exit:\n %v", solved.ToExit)
+	if IsPathPossible(solved, maze.DispatchToGraph(bigMaze)) == false {
+		t.Error("Path to key must be found")
 	}
 
-	t.Logf("\n%s", maze.PrintMaze(solved.SolvedMap))
+	t.Logf("\n%s", maze.PrintMaze(bigMaze))
 }
