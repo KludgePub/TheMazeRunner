@@ -49,7 +49,7 @@ func TestDispatch_HorizontalWall(t *testing.T) {
 
 		isFound := false
 		for _, e := range expected {
-			str := PrintGraphNode(n)
+			str := PrintGraphNode(n, true)
 			if str == e {
 				isFound = true
 				break
@@ -57,7 +57,7 @@ func TestDispatch_HorizontalWall(t *testing.T) {
 		}
 
 		if !isFound {
-			t.Error(fmt.Sprintf("\nUnexpected output from node: %s", PrintGraphNode(n)))
+			t.Error(fmt.Sprintf("\nUnexpected output from node: %s", PrintGraphNode(n, true)))
 		}
 	}
 
@@ -111,7 +111,7 @@ func TestDispatch_VerticalWall(t *testing.T) {
 
 		isFound := false
 		for _, e := range expected {
-			str := PrintGraphNode(n)
+			str := PrintGraphNode(n, true)
 			if str == e {
 				isFound = true
 				break
@@ -119,7 +119,7 @@ func TestDispatch_VerticalWall(t *testing.T) {
 		}
 
 		if !isFound {
-			t.Error(fmt.Sprintf("\nUnexpected output from node: %s", PrintGraphNode(n)))
+			t.Error(fmt.Sprintf("\nUnexpected output from node: %s", PrintGraphNode(n, true)))
 		}
 	}
 
@@ -161,7 +161,7 @@ func TestDispatch_WallsAround(t *testing.T) {
 		}
 		isFound := false
 		for _, e := range expected {
-			str := PrintGraphNode(n)
+			str := PrintGraphNode(n, true)
 			if str == e {
 				isFound = true
 				break
@@ -169,7 +169,7 @@ func TestDispatch_WallsAround(t *testing.T) {
 		}
 
 		if !isFound {
-			t.Error(fmt.Sprintf("\nUnexpected output from node: %s", PrintGraphNode(n)))
+			t.Error(fmt.Sprintf("\nUnexpected output from node: %s", PrintGraphNode(n, true)))
 		}
 	}
 

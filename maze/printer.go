@@ -7,7 +7,7 @@ import (
 )
 
 // String implementation to print node
-func PrintGraphNode(n *Node) string {
+func PrintGraphNode(n *Node, isPrettyPrint bool) string {
 	var x1, y1, x2, y2, x3, y3 = n.Point.X, n.Point.Y, -1, -1, -1, -1
 
 	if n.RightNeighbor != nil {
@@ -18,7 +18,11 @@ func PrintGraphNode(n *Node) string {
 		x3, y3 = n.BottomNeighbor.Point.X, n.BottomNeighbor.Point.Y
 	}
 
-	return fmt.Sprintf("%s => %d %d %d %d %d %d", string(n.Entity), x1, y1, x2, y2, x3, y3)
+	if isPrettyPrint {
+		return fmt.Sprintf("%s => %d %d %d %d %d %d", string(n.Entity), x1, y1, x2, y2, x3, y3)
+	}
+
+	return fmt.Sprintf("%d %d %d %d %d %d", x1, y1, x2, y2, x3, y3)
 }
 
 // String parsing maze map to text interpretation

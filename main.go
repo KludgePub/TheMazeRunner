@@ -2,42 +2,58 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
+	"github.com/LinMAD/TheMazeRunnerServer/validator"
 )
 
 func init() {
-	fmt.Printf("\n%s\n", "-> Initilizing the maze server...")
+	log.Printf("%s\n", "-> Initilizing the maze server...")
 	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
-	fmt.Println("-> Generating new maze...")
+	row, column := 5, 5
 
-	// Size of maze map
-	r, c := 2, 2
-	m := maze.NewMaze(r, c)
-	m.Generate()
+	log.Printf("-> Generating new maze (%dx%d)...\n", row, column)
 
-	fmt.Println("-> Maze ready...")
-	fmt.Println("- Bytes map:\n", m.Container)
-	fmt.Println("- Visual map: ")
+	m := CreateGameWorld(row, column)
+
+	log.Println("-> Maze ready...")
+	log.Printf("-> Visual map:\n\n")
 	fmt.Println(maze.PrintMaze(m))
 
-	// TODO Debug mode
-	fmt.Println("\nDebug maze rows output")
-	g := maze.DispatchToGraph(m)
-	for id, n := range g.Nodes {
-		fmt.Printf("\nNode: %d with prop: %s => neighbors:\n%s", id, string(n.Entity), maze.PrintGraphNode(n))
+	log.Println("-> Interpretation of maze for players...")
+	log.Println("-> Nodes: Current, right, bottom nodes with: x,y x,y, x,y")
+	log.Println("-> Maze nodes lines:")
+
+	for _, n := range maze.DispatchToGraph(m).Nodes {
+		fmt.Printf("%s\n", maze.PrintGraphNode(n, true))
 	}
 
-	fmt.Println("\nDebug solved maze")
-	//solved := validator.SolvePath(*m)
-	//fmt.Println(maze.PrintMaze(solved.SolvedMap))
-	//fmt.Printf("\nPath can be solved (%v) from Start to Key:\n%v", validator.IsPathPossible(solved.ToKey, g), solved.ToKey)
-	//fmt.Printf( "\nPath can be solved (%v) from Key to Exit:\n%v", validator.IsPathPossible(solved.ToExit, g), solved.ToExit)
-
 	// TODO Execute API for players to remotely control game
+	// TODO Add storage to register: Player, Maze, Score, Locations
+}
+
+// CreateGameWorld maze map
+func CreateGameWorld(r, c int) (m *maze.Map) {
+	i := 0
+	for {
+		i++
+		log.Printf("-> Assemble a maze in (%d) attempt...\n", i)
+
+		m = maze.NewMaze(r, c)
+		m.Generate()
+		g := maze.DispatchToGraph(m)
+
+		toKey := validator.SolvePath(*m, m.Entrance, m.Key)
+		toExit := validator.SolvePath(*m, m.Entrance, m.Exit)
+
+		if validator.IsPathPossible(toKey, g) && validator.IsPathPossible(toExit, g) {
+			return
+		}
+	}
 }

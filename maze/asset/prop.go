@@ -9,7 +9,6 @@ const (
 	StartingPoint  = 'S'
 	EndingPoint    = 'E'
 	KeyPoint       = 'K'
-	FootPrint      = '.'
 )
 
 // map tiles

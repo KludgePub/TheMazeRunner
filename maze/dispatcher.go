@@ -41,7 +41,7 @@ func DispatchToGraph(m *Map) *Graph {
 			}
 
 			// Check left neighbor
-			if y-1 >= 0 && m.Walls.Vertical[x][y] != asset.VerticalWall{
+			if y-1 >= 0 && m.Walls.Vertical[x][y] != asset.VerticalWall {
 				var lNode *Node
 
 				lnp := Point{X: x, Y: y - 1}
@@ -98,7 +98,7 @@ func DispatchToGraph(m *Map) *Graph {
 			if m.Width > x+1 && m.Walls.Horizontal[x+1][y] != asset.HorizontalWall {
 				var bNode *Node
 
-				bnp := Point{X: x+1, Y: y}
+				bnp := Point{X: x + 1, Y: y}
 
 				if n, exist := graph.Nodes[bnp]; exist {
 					bNode = n

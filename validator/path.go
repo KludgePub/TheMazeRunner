@@ -2,7 +2,6 @@ package validator
 
 import (
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
-	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
 )
 
 // SolvePath show path in map
@@ -70,10 +69,6 @@ func SolvePath(m maze.Map, from, to maze.Point) []maze.Point {
 			isCanMove(g, n, to)
 			break
 		}
-	}
-
-	for _, p := range stackPath {
-		m.Container[p.X][p.Y] = asset.FootPrint
 	}
 
 	return stackPath

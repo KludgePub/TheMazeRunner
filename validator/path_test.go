@@ -39,7 +39,6 @@ func prepare(t *testing.T) {
 
 	g = maze.DispatchToGraph(m)
 
-
 	t.Logf("\n%s", maze.PrintMaze(m))
 }
 
@@ -122,7 +121,7 @@ func TestIsPathPossible_MoveWithTurns(t *testing.T) {
 }
 
 func TestIsPathPossible_StaticBigMaze(t *testing.T) {
-	rMaze := maze.NewMaze(4,4)
+	rMaze := maze.NewMaze(4, 4)
 	rMaze.Generate()
 	rG := maze.DispatchToGraph(rMaze)
 
@@ -148,7 +147,6 @@ func TestIsPathPossible_StaticBigMaze(t *testing.T) {
 		t.Error("Move must be possible path")
 	}
 }
-
 
 func TestSolveMaze_CheckPathToKey(t *testing.T) {
 	prepare(t)
@@ -179,7 +177,7 @@ func TestSolveMaze_CheckPathToExit(t *testing.T) {
 func TestSolveMaze_RandomMazeToKey(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 
-	randSize := rand.Intn(10+2)
+	randSize := rand.Intn(10 + 2)
 	bigMaze := maze.NewMaze(randSize, randSize)
 	bigMaze.Generate()
 
@@ -198,7 +196,7 @@ func TestSolveMaze_RandomMazeToKey(t *testing.T) {
 func TestSolveMaze_RandomMazeToExit(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 
-	randSize := rand.Intn(20+2)
+	randSize := rand.Intn(20 + 2)
 	bigMaze := maze.NewMaze(randSize, randSize)
 	bigMaze.Generate()
 
