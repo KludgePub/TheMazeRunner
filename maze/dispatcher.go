@@ -26,8 +26,8 @@ func DispatchToGraph(m *Map) *Graph {
 		Nodes: make(map[Point]*Node, m.Size),
 	}
 
-	for y := 0; y < m.Height; y++ {
-		for x := 0; x < m.Width; x++ {
+	for x := 0; x < m.Width; x++ {
+		for y := 0; y < m.Width; y++ {
 			var cNode *Node
 			cPoint := Point{X: x, Y: y}
 
@@ -35,81 +35,81 @@ func DispatchToGraph(m *Map) *Graph {
 				cNode = n
 			} else {
 				cNode = &Node{
-					Entity: m.Container[y][x],
+					Entity: m.Container[x][y],
 					Point:  cPoint,
 				}
 			}
 
 			// Check left neighbor
-			if x-1 >= 0 && (m.Walls.Vertical[y][x] != asset.VerticalWall) {
+			if y-1 >= 0 && m.Walls.Vertical[x][y] != asset.VerticalWall{
 				var lNode *Node
 
-				lnp := Point{X: x - 1, Y: y}
+				lnp := Point{X: x, Y: y - 1}
 
 				if n, exist := graph.Nodes[lnp]; exist {
 					lNode = n
 				} else {
 					lNode = &Node{
-						Entity: m.Container[y][x-1],
+						Entity: m.Container[x][y-1],
 						Point:  lnp,
 					}
 				}
 
-				cNode.LeftNeighbor = lNode
+				graph.Nodes[lNode.Point], cNode.LeftNeighbor = lNode, lNode
 			}
 
 			// Check right neighbor
-			if m.Width > x+1 && m.Walls.Vertical[y][x+1] != asset.VerticalWall {
+			if m.Height > y+1 && m.Walls.Vertical[x][y+1] != asset.VerticalWall {
 				var rNode *Node
 
-				rnp := Point{X: x + 1, Y: y}
+				rnp := Point{X: x, Y: y + 1}
 
 				if n, exist := graph.Nodes[rnp]; exist {
 					rNode = n
 				} else {
 					rNode = &Node{
-						Entity: m.Container[y][x+1],
+						Entity: m.Container[x][y+1],
 						Point:  rnp,
 					}
 				}
 
-				cNode.RightNeighbor = rNode
+				graph.Nodes[rNode.Point], cNode.RightNeighbor = rNode, rNode
 			}
 
 			// Check top neighbor
-			if y-1 >= 0 && (m.Walls.Horizontal[y][x] != asset.HorizontalWall) {
+			if x-1 >= 0 && m.Walls.Horizontal[x][y] != asset.HorizontalWall {
 				var topNode *Node
 
-				tnp := Point{X: x, Y: y - 1}
+				tnp := Point{X: x - 1, Y: y}
 
 				if n, exist := graph.Nodes[tnp]; exist {
 					topNode = n
 				} else {
 					topNode = &Node{
-						Entity: m.Container[y-1][x],
+						Entity: m.Container[x-1][y],
 						Point:  tnp,
 					}
 				}
 
-				cNode.TopNeighbor = topNode
+				graph.Nodes[topNode.Point], cNode.TopNeighbor = topNode, topNode
 			}
 
 			// Check bottom neighbor
-			if m.Height > y+1 && m.Walls.Horizontal[y+1][x] != asset.HorizontalWall {
+			if m.Width > x+1 && m.Walls.Horizontal[x+1][y] != asset.HorizontalWall {
 				var bNode *Node
 
-				bnp := Point{X: x, Y: y + 1}
+				bnp := Point{X: x+1, Y: y}
 
 				if n, exist := graph.Nodes[bnp]; exist {
 					bNode = n
 				} else {
 					bNode = &Node{
-						Entity: m.Container[y+1][x],
+						Entity: m.Container[x+1][y],
 						Point:  bnp,
 					}
 				}
 
-				cNode.BottomNeighbor = bNode
+				graph.Nodes[bNode.Point], cNode.BottomNeighbor = bNode, bNode
 			}
 
 			// Update graph

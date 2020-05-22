@@ -30,9 +30,9 @@ func TestDispatch_HorizontalWall(t *testing.T) {
 
 	expected := make([]string, m.Size)
 	// current [x, y], right [x, y], bottom [x, y]
-	expected[0] = "K => 0 0 1 0 0 1"     // key
-	expected[1] = "S => 1 0 -1 -1 -1 -1" // start
-	expected[2] = "  => 0 1 1 1 -1 -1"   // empty
+	expected[0] = "K => 0 0 0 1 1 0"     // key
+	expected[1] = "S => 0 1 -1 -1 -1 -1" // start
+	expected[2] = "  => 1 0 1 1 -1 -1"   // empty
 	expected[3] = "E => 1 1 -1 -1 -1 -1" // end
 
 	for _, n := range g.Nodes {
@@ -92,9 +92,9 @@ func TestDispatch_VerticalWall(t *testing.T) {
 
 	expected := make([]string, m.Size)
 	// current [x, y], right [x, y], bottom [x, y]
-	expected[0] = "K => 0 0 -1 -1 0 1"   // key
-	expected[1] = "S => 1 0 -1 -1 1 1"   // start
-	expected[2] = "  => 0 1 1 1 -1 -1"   // empty
+	expected[0] = "K => 0 0 -1 -1 1 0"   // key
+	expected[1] = "S => 0 1 -1 -1 1 1"   // start
+	expected[2] = "  => 1 0 1 1 -1 -1"   // empty
 	expected[3] = "E => 1 1 -1 -1 -1 -1" // end
 
 	for _, n := range g.Nodes {
@@ -151,8 +151,8 @@ func TestDispatch_WallsAround(t *testing.T) {
 	expected := make([]string, m.Size)
 	// current [x, y], right [x, y], bottom [x, y]
 	expected[0] = "K => 0 0 -1 -1 -1 -1" // key
-	expected[1] = "S => 1 0 -1 -1 -1 -1" // start
-	expected[2] = "  => 0 1 -1 -1 -1 -1" // empty
+	expected[1] = "S => 0 1 -1 -1 -1 -1" // start
+	expected[2] = "  => 1 0 -1 -1 -1 -1" // empty
 	expected[3] = "E => 1 1 -1 -1 -1 -1" // end
 
 	for _, n := range g.Nodes {

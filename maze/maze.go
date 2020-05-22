@@ -36,8 +36,8 @@ func NewMaze(rows, cols int) *Map {
 	// Init maze matrix and fill Walls inside
 	m := &Map{
 		Size:     rows * cols,
-		Height:   cols,
-		Width:    rows,
+		Height:   rows,
+		Width:    cols,
 		Key:      Point{},
 		Entrance: Point{},
 		Exit:     Point{},
@@ -70,8 +70,8 @@ func (m *Map) Generate() {
 
 	m.fillMaze(rand.Intn(height), rand.Intn(width))
 
-	m.Entrance.X = rand.Intn(width)
-	m.Entrance.Y = rand.Intn(height)
+	m.Entrance.X = rand.Intn(height)
+	m.Entrance.Y = rand.Intn(width)
 	m.Container[m.Entrance.X][m.Entrance.Y] = asset.StartingPoint
 
 	for {
@@ -79,7 +79,7 @@ func (m *Map) Generate() {
 		kProp := m.Container[m.Key.X][m.Key.Y]
 
 		if eProp != asset.EndingPoint {
-			m.Exit.X = rand.Intn(width)
+			m.Exit.X = rand.Intn(height)
 			m.Exit.Y = rand.Intn(width)
 
 			eProp := m.Container[m.Exit.X][m.Exit.Y]
@@ -90,7 +90,7 @@ func (m *Map) Generate() {
 
 		if kProp != asset.KeyPoint {
 			// TODO Tweak location to be on opposite site from ending point
-			m.Key.X = rand.Intn(width)
+			m.Key.X = rand.Intn(height)
 			m.Key.Y = rand.Intn(width)
 
 			kProp := m.Container[m.Key.X][m.Key.Y]
@@ -108,30 +108,30 @@ func (m *Map) Generate() {
 }
 
 // fillMaze will runs recursively to construct maze
-func (m *Map) fillMaze(startH, startW int) {
-	m.Container[startH][startW] = asset.EmptySpace
+func (m *Map) fillMaze(x, y int) {
+	m.Container[x][y] = asset.EmptySpace
 
 	for _, direction := range rand.Perm(4) {
 		switch direction {
 		case asset.Up:
-			if startH > 0 && m.Container[startH-1][startW] == 0 {
-				m.Walls.Horizontal[startH][startW] = 0
-				m.fillMaze(startH-1, startW)
+			if x > 0 && m.Container[x-1][y] == 0 {
+				m.Walls.Horizontal[x][y] = 0
+				m.fillMaze(x-1, y)
 			}
 		case asset.Down:
-			if startH < len(m.Container)-1 && m.Container[startH+1][startW] == 0 {
-				m.Walls.Horizontal[startH+1][startW] = 0
-				m.fillMaze(startH+1, startW)
+			if x < len(m.Container)-1 && m.Container[x+1][y] == 0 {
+				m.Walls.Horizontal[x+1][y] = 0
+				m.fillMaze(x+1, y)
 			}
 		case asset.Left:
-			if startW > 0 && m.Container[startH][startW-1] == 0 {
-				m.Walls.Vertical[startH][startW] = 0
-				m.fillMaze(startH, startW-1)
+			if y > 0 && m.Container[x][y-1] == 0 {
+				m.Walls.Vertical[x][y] = 0
+				m.fillMaze(x, y-1)
 			}
 		case asset.Right:
-			if startW < len(m.Container[0])-1 && m.Container[startH][startW+1] == 0 {
-				m.Walls.Vertical[startH][startW+1] = 0
-				m.fillMaze(startH, startW+1)
+			if y < len(m.Container[0])-1 && m.Container[x][y+1] == 0 {
+				m.Walls.Vertical[x][y+1] = 0
+				m.fillMaze(x, y+1)
 			}
 		}
 	}

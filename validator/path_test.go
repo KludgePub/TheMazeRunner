@@ -121,10 +121,39 @@ func TestIsPathPossible_MoveWithTurns(t *testing.T) {
 	}
 }
 
+func TestIsPathPossible_StaticBigMaze(t *testing.T) {
+	rMaze := maze.NewMaze(4,4)
+	rMaze.Generate()
+	rG := maze.DispatchToGraph(rMaze)
+
+	t.Logf("\n%s", maze.PrintMaze(rMaze))
+
+	path := make([]maze.Point, 5)
+
+	for _, n := range rG.Nodes {
+		if n.Entity == asset.StartingPoint {
+			path[0] = n.Point
+		}
+		if n.Entity == asset.EndingPoint {
+			path[4] = n.Point
+		}
+	}
+
+	path[1] = maze.Point{X: 2, Y: 2}
+	path[2] = maze.Point{X: 2, Y: 3}
+	path[3] = maze.Point{X: 3, Y: 3}
+
+	// Check incorrect path from start to exit (must hit wall)
+	if IsPathPossible(path, rG) == false {
+		t.Error("Move must be possible path")
+	}
+}
+
+
 func TestSolveMaze_CheckPathToKey(t *testing.T) {
 	prepare(t)
 
-	solved := SolvePath(*m, m.Entrance, m.Key, true)
+	solved := SolvePath(*m, m.Entrance, m.Key)
 	t.Logf("Path:\n%v", solved)
 
 	if IsPathPossible(solved, g) == false {
@@ -137,7 +166,7 @@ func TestSolveMaze_CheckPathToKey(t *testing.T) {
 func TestSolveMaze_CheckPathToExit(t *testing.T) {
 	prepare(t)
 
-	solved := SolvePath(*m, m.Key, m.Exit, true)
+	solved := SolvePath(*m, m.Key, m.Exit)
 	t.Logf("Path:\n%v", solved)
 
 	if IsPathPossible(solved, g) == false {
@@ -147,17 +176,37 @@ func TestSolveMaze_CheckPathToExit(t *testing.T) {
 	t.Logf("\n%s", maze.PrintMaze(m))
 }
 
-func TestSolveMaze_RandomMaze(t *testing.T) {
+func TestSolveMaze_RandomMazeToKey(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
-	bigMaze := maze.NewMaze(4,4)
+
+	randSize := rand.Intn(10+2)
+	bigMaze := maze.NewMaze(randSize, randSize)
 	bigMaze.Generate()
 
 	t.Logf("\n%s", maze.PrintMaze(bigMaze))
+	t.Logf("S x,y: %d,%d and K x,y: %d,%d", bigMaze.Entrance.X, bigMaze.Entrance.Y, bigMaze.Key.X, bigMaze.Key.Y)
 
-	t.Logf("S x,y: %v and K x,y: %v", bigMaze.Entrance, bigMaze.Key)
-	solved := SolvePath(*bigMaze, bigMaze.Entrance, bigMaze.Key, true)
+	solved := SolvePath(*bigMaze, bigMaze.Entrance, bigMaze.Key)
 	t.Logf("Path:%v", solved)
+	if IsPathPossible(solved, maze.DispatchToGraph(bigMaze)) == false {
+		t.Error("Path to key must be found")
+	}
 
+	t.Logf("\n%s", maze.PrintMaze(bigMaze))
+}
+
+func TestSolveMaze_RandomMazeToExit(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+
+	randSize := rand.Intn(20+2)
+	bigMaze := maze.NewMaze(randSize, randSize)
+	bigMaze.Generate()
+
+	t.Logf("\n%s", maze.PrintMaze(bigMaze))
+	t.Logf("S x,y: %d,%d and E x,y: %d,%d", bigMaze.Entrance.X, bigMaze.Entrance.Y, bigMaze.Exit.X, bigMaze.Exit.Y)
+
+	solved := SolvePath(*bigMaze, bigMaze.Entrance, bigMaze.Exit)
+	t.Logf("Path:%v", solved)
 	if IsPathPossible(solved, maze.DispatchToGraph(bigMaze)) == false {
 		t.Error("Path to key must be found")
 	}

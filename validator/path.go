@@ -5,41 +5,11 @@ import (
 	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
 )
 
-// SolvedMaze maze and road paths
-type SolvedMaze struct {
-	// Same map but with path foot prints
-	SolvedMap *maze.Map
-	// ToKey, ToExit directions from start to key and then to exit
-	ToKey, ToExit []maze.Point
-}
-
 // SolvePath show path in map
-func SolvePath(m maze.Map, from, to maze.Point, showPath bool) []maze.Point {
-	path := []maze.Point{{
-		X: from.X,
-		Y: from.Y,
-	}}
+func SolvePath(m maze.Map, from, to maze.Point) []maze.Point {
+	stackPath := []maze.Point{from}
 
-	path = seekForPath(
-		&m,
-		maze.Point{X: from.X, Y: from.Y},
-		maze.Point{X: to.X, Y: to.Y},
-	)
-
-	if showPath {
-		for _, p := range path {
-			m.Container[p.X][p.Y] = asset.FootPrint
-		}
-	}
-
-	return path
-}
-
-// seekForPath in recursion
-func seekForPath(m *maze.Map, from, to maze.Point) []maze.Point {
-	stack := []maze.Point{from}
-
-	g := maze.DispatchToGraph(m)
+	g := maze.DispatchToGraph(&m)
 
 	var isCanMove func(g *maze.Graph, cNode *maze.Node, endPoint maze.Point) bool
 
@@ -53,43 +23,43 @@ func seekForPath(m *maze.Map, from, to maze.Point) []maze.Point {
 		cNode.Visited = true
 
 		if cNode.TopNeighbor != nil {
-			stack = append(stack, cNode.TopNeighbor.Point)
+			stackPath = append(stackPath, cNode.TopNeighbor.Point)
 
-			if isCanMove(g, g.Nodes[cNode.TopNeighbor.Point], to) {
+			if isCanMove(g, cNode.TopNeighbor, to) {
 				return true
 			}
 
-			stack = stack[:len(stack)-1]
+			stackPath = stackPath[:len(stackPath)-1]
 		}
 
 		if cNode.BottomNeighbor != nil {
-			stack = append(stack, cNode.BottomNeighbor.Point)
+			stackPath = append(stackPath, cNode.BottomNeighbor.Point)
 
-			if isCanMove(g, g.Nodes[cNode.BottomNeighbor.Point], to) {
+			if isCanMove(g, cNode.BottomNeighbor, to) {
 				return true
 			}
 
-			stack = stack[:len(stack)-1]
+			stackPath = stackPath[:len(stackPath)-1]
 		}
 
 		if cNode.RightNeighbor != nil {
-			stack = append(stack, cNode.RightNeighbor.Point)
+			stackPath = append(stackPath, cNode.RightNeighbor.Point)
 
-			if isCanMove(g, g.Nodes[cNode.RightNeighbor.Point], to) {
+			if isCanMove(g, cNode.RightNeighbor, to) {
 				return true
 			}
 
-			stack = stack[:len(stack)-1]
+			stackPath = stackPath[:len(stackPath)-1]
 		}
 
 		if cNode.LeftNeighbor != nil {
-			stack = append(stack, cNode.LeftNeighbor.Point)
+			stackPath = append(stackPath, cNode.LeftNeighbor.Point)
 
-			if isCanMove(g, g.Nodes[cNode.LeftNeighbor.Point], to) {
+			if isCanMove(g, cNode.LeftNeighbor, to) {
 				return true
 			}
 
-			stack = stack[:len(stack)-1]
+			stackPath = stackPath[:len(stackPath)-1]
 		}
 
 		return false
@@ -102,7 +72,11 @@ func seekForPath(m *maze.Map, from, to maze.Point) []maze.Point {
 		}
 	}
 
-	return stack
+	for _, p := range stackPath {
+		m.Container[p.X][p.Y] = asset.FootPrint
+	}
+
+	return stackPath
 }
 
 // IsPathPossible validate if given path by points is possible in maze
@@ -133,7 +107,7 @@ func IsPathPossible(path []maze.Point, g *maze.Graph) bool {
 	}
 
 	if isPointsValid {
-		for i := 0; i < len(path); i += 2 {
+		for i := 0; i < len(path); i++ {
 			var to maze.Point
 			if i+1 >= len(path) {
 				to = path[i]
@@ -154,6 +128,10 @@ func IsPathPossible(path []maze.Point, g *maze.Graph) bool {
 
 // canMove validate movement
 func isPossibleToPass(from *maze.Node, to maze.Point) bool {
+	if from.Point.X == to.X && from.Point.Y == to.Y {
+		return true
+	}
+
 	// Check if we can move to left
 	if from.LeftNeighbor != nil {
 		if from.LeftNeighbor.Point.X == to.X && from.LeftNeighbor.Point.Y == to.Y {
