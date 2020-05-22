@@ -28,11 +28,11 @@ func PrintMaze(m *Map) string {
 
 	var b []byte
 
-	// Make visual map, for each row and column and construct visual relation between sections
-	for row, horizonWalls := range m.Walls.Horizontal {
+	// Make visual map, for each X and column and construct visual relation between sections
+	for x, horizonWalls := range m.Walls.Horizontal {
 
 		for _, h := range horizonWalls {
-			if h == asset.HorizontalWall || row == 0 {
+			if h == asset.HorizontalWall || x == 0 {
 				b = append(b, asset.HorizontalWallTile...)
 			} else {
 				b = append(b, asset.HorizontalOpenTile...)
@@ -41,16 +41,21 @@ func PrintMaze(m *Map) string {
 
 		b = append(b, rightCorner...)
 
-		for column, verticalWalls := range m.Walls.Vertical[row] {
-			if verticalWalls == asset.VerticalWall || column == 0 {
+		for y, verticalWalls := range m.Walls.Vertical[x] {
+			if verticalWalls == asset.VerticalWall || y == 0 {
 				b = append(b, asset.VerticalWallTile...)
 			} else {
 				b = append(b, asset.VerticalOpenTile...)
 			}
 
+			if m.Container[y][x] == asset.StartingPoint {
+				s := Point{X: x, Y: y}
+				_ = s
+			}
+
 			// draw object inside this cell
-			if m.Container[row][column] != 0 {
-				b[len(b)-2] = m.Container[row][column]
+			if m.Container[x][y] != 0 {
+				b[len(b)-2] = m.Container[x][y]
 			}
 		}
 
