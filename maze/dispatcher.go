@@ -5,19 +5,25 @@ import "github.com/LinMAD/TheMazeRunnerServer/maze/asset"
 // Graph with nodes and paths
 type Graph struct {
 	// Nodes with their relation
-	Nodes map[Point]*Node
+	Nodes map[Point]*Node `json:"maze_nodes"`
 }
 
 // Node represent single cell
 type Node struct {
 	// Visited if node was traversed
-	Visited bool
+	Visited bool `json:"-"`
 	// Entity represent an value
-	Entity byte
+	Entity byte `json:"entity,omitempty"`
 	// Point holds location
-	Point Point
-	// RightNeighbor, BottomNeighbor are edged nodes
-	LeftNeighbor, RightNeighbor, TopNeighbor, BottomNeighbor *Node
+	Point Point `json:"point"`
+	// LeftNeighbor edged nodes
+	LeftNeighbor *Node `json:"left_neighbor,omitempty"`
+	// RightNeighbor edged nodes
+	RightNeighbor *Node `json:"right_neighbor,omitempty"`
+	// TopNeighbor edged nodes
+	TopNeighbor *Node `json:"top_neighbor,omitempty"`
+	// BottomNeighbor edged nodes
+	BottomNeighbor *Node `json:"bottom_neighbor,omitempty"`
 }
 
 // DispatchToGraph assemble graph to provide it to player
