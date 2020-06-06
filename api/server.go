@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	STOP string = "STOP_SERVER"
+	stopServer  string = "STOP_SERVER"
+	getJsonMaze        = "GET_JSON_MAZE_MAP"
 )
 
 // ServerApi used to communicate with game client
@@ -30,6 +31,7 @@ func NewServer(port string, jMazeMap []byte) (s *ServerApi, err error) {
 	return s, nil
 }
 
+// Handle TCP requests from clients
 func (s *ServerApi) Handle() error {
 	defer s.l.Close()
 
@@ -40,25 +42,25 @@ func (s *ServerApi) Handle() error {
 
 	log.Printf("-> Accepted new connection from %s...", c.RemoteAddr())
 
-	// TODO Feed with game map
-	c.Write(s.m)
-
 	for {
 		netData, err := bufio.NewReader(c).ReadString('\n')
 		if err != nil {
 			return err
 		}
+		sReq := string(netData)
 
-		// Signals
-		// TODO Refactor to signal to shutdown server
-		if strings.TrimSpace(string(netData)) == STOP {
-			log.Println("-> Shutdown game server...")
-			return nil
+		// Handle tcp requests
+		if strings.TrimSpace(sReq) == getJsonMaze {
+			log.Println("-> Client requested maze map...")
+			_, err = c.Write(s.m)
+			if err != nil {
+				return err
+			}
 		}
 
-		//fmt.Print("-> ", string(netData))
-		//t := time.Now()
-		//myTime := t.Format(time.RFC3339) + "\n"
-		//c.Write([]byte(myTime))
+		if strings.TrimSpace(sReq) == stopServer {
+			log.Println("-> Client requested to shutdown game server...")
+			return nil
+		}
 	}
 }

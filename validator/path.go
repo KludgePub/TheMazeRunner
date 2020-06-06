@@ -21,7 +21,7 @@ func SolvePath(m maze.Map, from, to maze.Point) []maze.Point {
 
 		cNode.Visited = true
 
-		if cNode.TopNeighbor != nil {
+		if cNode.IsTopNeighbor {
 			stackPath = append(stackPath, cNode.TopNeighbor.Point)
 
 			if isCanMove(g, cNode.TopNeighbor, to) {
@@ -31,7 +31,7 @@ func SolvePath(m maze.Map, from, to maze.Point) []maze.Point {
 			stackPath = stackPath[:len(stackPath)-1]
 		}
 
-		if cNode.BottomNeighbor != nil {
+		if cNode.IsBottomNeighbor {
 			stackPath = append(stackPath, cNode.BottomNeighbor.Point)
 
 			if isCanMove(g, cNode.BottomNeighbor, to) {
@@ -41,7 +41,7 @@ func SolvePath(m maze.Map, from, to maze.Point) []maze.Point {
 			stackPath = stackPath[:len(stackPath)-1]
 		}
 
-		if cNode.RightNeighbor != nil {
+		if cNode.IsRightNeighbor {
 			stackPath = append(stackPath, cNode.RightNeighbor.Point)
 
 			if isCanMove(g, cNode.RightNeighbor, to) {
@@ -51,7 +51,7 @@ func SolvePath(m maze.Map, from, to maze.Point) []maze.Point {
 			stackPath = stackPath[:len(stackPath)-1]
 		}
 
-		if cNode.LeftNeighbor != nil {
+		if cNode.IsLeftNeighbor {
 			stackPath = append(stackPath, cNode.LeftNeighbor.Point)
 
 			if isCanMove(g, cNode.LeftNeighbor, to) {
@@ -110,7 +110,7 @@ func IsPathPossible(path []maze.Point, g *maze.Graph) bool {
 				to = path[i+1]
 			}
 
-			if isPossibleToPass(g.Nodes[path[i]], to) {
+			if isPossibleToPass(g.Nodes[path[i].GetId()], to) {
 				continue
 			}
 

@@ -36,14 +36,16 @@ func main() {
 	}
 
 	log.Printf("%s\n", "-> Initilizing the maze server...")
-	server, err := api.NewServer("40", jm)
-	if err != nil {
-		panic(err)
+	server, serverErr := api.NewServer("40", jm)
+	if serverErr != nil {
+		panic(serverErr)
 	}
 
 	log.Printf("%s\n", "-> Server ready to handle TCP requests...")
-	_ = server.Handle()
-
+	handleErr := server.Handle()
+	if handleErr != nil {
+		panic(handleErr)
+	}
 	// TODO Add storage to register: Player, Maze, Score, Locations
 }
 

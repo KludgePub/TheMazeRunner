@@ -2,8 +2,6 @@ package maze
 
 import (
 	"bytes"
-	"crypto/md5"
-	"io"
 	"math/rand"
 
 	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
@@ -33,18 +31,6 @@ type Point struct {
 	X int `json:"x"`
 	// Y location
 	Y int `json:"y"`
-}
-
-// MarshalText point to md5 has for json
-func (p Point) MarshalText() (text []byte, err error) {
-	h := md5.New()
-
-	_, err = io.WriteString(h, string(p.X + p.Y))
-	if err != nil {
-		return nil, err
-	}
-
-	return h.Sum(nil), nil
 }
 
 // NewMaze generates a new map
