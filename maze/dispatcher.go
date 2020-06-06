@@ -1,29 +1,55 @@
 package maze
 
-import "github.com/LinMAD/TheMazeRunnerServer/maze/asset"
+import (
+	"fmt"
+
+	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
+)
 
 // Graph with nodes and paths
 type Graph struct {
 	// Nodes with their relation
-	Nodes map[Point]*Node
+	Nodes map[string]*Node `json:"maze_nodes"`
 }
 
 // Node represent single cell
 type Node struct {
 	// Visited if node was traversed
-	Visited bool
+	Visited bool `json:"-"`
 	// Entity represent an value
-	Entity byte
+	Entity byte `json:"entity,omitempty"`
 	// Point holds location
-	Point Point
-	// RightNeighbor, BottomNeighbor are edged nodes
-	LeftNeighbor, RightNeighbor, TopNeighbor, BottomNeighbor *Node
+	Point Point `json:"point"`
+	// IsLeftNeighbor exist
+	IsLeftNeighbor bool `json:"is_left_neighbor"`
+	// IsRightNeighbor exist
+	IsRightNeighbor bool `json:"is_right_neighbor"`
+	// IsTopNeighbor exist
+	IsTopNeighbor bool `json:"is_top_neighbor"`
+	// IsBottomNeighbor exist
+	IsBottomNeighbor bool `json:"is_bottom_neighbor"`
+
+	// Do not marshal json, it will be recursive
+
+	// LeftNeighbor edged nodes
+	LeftNeighbor *Node `json:"-"`
+	// RightNeighbor edged nodes
+	RightNeighbor *Node `json:"-"`
+	// TopNeighbor edged nodes
+	TopNeighbor *Node `json:"-"`
+	// BottomNeighbor edged nodes
+	BottomNeighbor *Node `json:"-"`
+}
+
+// GetId creates unique point hash
+func (p Point) GetId() string {
+	return fmt.Sprintf("x:%d,y:%d", p.X, p.Y)
 }
 
 // DispatchToGraph assemble graph to provide it to player
 func DispatchToGraph(m *Map) *Graph {
 	graph := Graph{
-		Nodes: make(map[Point]*Node, m.Size),
+		Nodes: make(map[string]*Node, m.Size),
 	}
 
 	for x := 0; x < m.Width; x++ {
@@ -31,7 +57,7 @@ func DispatchToGraph(m *Map) *Graph {
 			var cNode *Node
 			cPoint := Point{X: x, Y: y}
 
-			if n, exist := graph.Nodes[cPoint]; exist {
+			if n, exist := graph.Nodes[cPoint.GetId()]; exist {
 				cNode = n
 			} else {
 				cNode = &Node{
@@ -46,7 +72,7 @@ func DispatchToGraph(m *Map) *Graph {
 
 				lnp := Point{X: x, Y: y - 1}
 
-				if n, exist := graph.Nodes[lnp]; exist {
+				if n, exist := graph.Nodes[lnp.GetId()]; exist {
 					lNode = n
 				} else {
 					lNode = &Node{
@@ -55,7 +81,8 @@ func DispatchToGraph(m *Map) *Graph {
 					}
 				}
 
-				graph.Nodes[lNode.Point], cNode.LeftNeighbor = lNode, lNode
+				cNode.IsLeftNeighbor = true
+				graph.Nodes[lNode.Point.GetId()], cNode.LeftNeighbor = lNode, lNode
 			}
 
 			// Check right neighbor
@@ -64,7 +91,7 @@ func DispatchToGraph(m *Map) *Graph {
 
 				rnp := Point{X: x, Y: y + 1}
 
-				if n, exist := graph.Nodes[rnp]; exist {
+				if n, exist := graph.Nodes[rnp.GetId()]; exist {
 					rNode = n
 				} else {
 					rNode = &Node{
@@ -73,7 +100,8 @@ func DispatchToGraph(m *Map) *Graph {
 					}
 				}
 
-				graph.Nodes[rNode.Point], cNode.RightNeighbor = rNode, rNode
+				cNode.IsRightNeighbor = true
+				graph.Nodes[rNode.Point.GetId()], cNode.RightNeighbor = rNode, rNode
 			}
 
 			// Check top neighbor
@@ -82,7 +110,7 @@ func DispatchToGraph(m *Map) *Graph {
 
 				tnp := Point{X: x - 1, Y: y}
 
-				if n, exist := graph.Nodes[tnp]; exist {
+				if n, exist := graph.Nodes[tnp.GetId()]; exist {
 					topNode = n
 				} else {
 					topNode = &Node{
@@ -91,7 +119,8 @@ func DispatchToGraph(m *Map) *Graph {
 					}
 				}
 
-				graph.Nodes[topNode.Point], cNode.TopNeighbor = topNode, topNode
+				cNode.IsTopNeighbor = true
+				graph.Nodes[topNode.Point.GetId()], cNode.TopNeighbor = topNode, topNode
 			}
 
 			// Check bottom neighbor
@@ -100,7 +129,7 @@ func DispatchToGraph(m *Map) *Graph {
 
 				bnp := Point{X: x + 1, Y: y}
 
-				if n, exist := graph.Nodes[bnp]; exist {
+				if n, exist := graph.Nodes[bnp.GetId()]; exist {
 					bNode = n
 				} else {
 					bNode = &Node{
@@ -109,11 +138,12 @@ func DispatchToGraph(m *Map) *Graph {
 					}
 				}
 
-				graph.Nodes[bNode.Point], cNode.BottomNeighbor = bNode, bNode
+				cNode.IsBottomNeighbor = true
+				graph.Nodes[bNode.Point.GetId()], cNode.BottomNeighbor = bNode, bNode
 			}
 
 			// Update graph
-			graph.Nodes[cNode.Point] = cNode
+			graph.Nodes[cNode.Point.GetId()] = cNode
 		}
 	}
 

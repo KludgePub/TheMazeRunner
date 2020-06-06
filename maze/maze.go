@@ -27,8 +27,10 @@ type Walls struct {
 
 // Point in maze matrix
 type Point struct {
-	// X, Y location
-	X, Y int
+	// X location
+	X int `json:"x"`
+	// Y location
+	Y int `json:"y"`
 }
 
 // NewMaze generates a new map

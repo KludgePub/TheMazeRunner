@@ -1,17 +1,18 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
 	"time"
 
+	"github.com/LinMAD/TheMazeRunnerServer/api"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 	"github.com/LinMAD/TheMazeRunnerServer/validator"
 )
 
 func init() {
-	log.Printf("%s\n", "-> Initilizing the maze server...")
 	rand.Seed(time.Now().UnixNano())
 }
 
@@ -20,29 +21,39 @@ func main() {
 
 	log.Printf("-> Generating new maze (%dx%d)...\n", row, column)
 
-	m := CreateGameWorld(row, column)
-
-	log.Println("-> Maze ready...")
-	log.Printf("-> Visual map:\n\n")
-	fmt.Println(maze.PrintMaze(m))
-
-	log.Println("-> Interpretation of maze for players...")
-	log.Println("-> Nodes: Current, right, bottom nodes with: x,y x,y, x,y")
-	log.Println("-> Maze nodes lines:")
-
-	for _, n := range maze.DispatchToGraph(m).Nodes {
-		fmt.Printf("%s\n", maze.PrintGraphNode(n, true))
+	m, mErr := CreateGameWorld(row, column)
+	if mErr != nil {
+		panic(mErr)
 	}
 
-	// TODO Execute API for players to remotely control game
+	log.Println("-> Maze ready...")
+	log.Printf("-> Visual map:\n")
+	log.Printf("\n%s", maze.PrintMaze(m))
+
+	jm, jmErr := json.Marshal(maze.DispatchToGraph(m))
+	if jmErr != nil {
+		panic(jmErr)
+	}
+
+	log.Printf("%s\n", "-> Initilizing the maze server...")
+	server, serverErr := api.NewServer("40", jm)
+	if serverErr != nil {
+		panic(serverErr)
+	}
+
+	log.Printf("%s\n", "-> Server ready to handle TCP requests...")
+	handleErr := server.Handle()
+	if handleErr != nil {
+		panic(handleErr)
+	}
 	// TODO Add storage to register: Player, Maze, Score, Locations
 }
 
 // CreateGameWorld maze map
-func CreateGameWorld(r, c int) (m *maze.Map) {
-	i := 0
-	for {
-		i++
+func CreateGameWorld(r, c int) (m *maze.Map, err error) {
+	const MaxAttempt = int(^uint(0) >> 1)
+
+	for i := 0; i <= MaxAttempt; i++ {
 		log.Printf("-> Assemble a maze in (%d) attempt...\n", i)
 
 		m = maze.NewMaze(r, c)
@@ -53,7 +64,9 @@ func CreateGameWorld(r, c int) (m *maze.Map) {
 		toExit := validator.SolvePath(*m, m.Entrance, m.Exit)
 
 		if validator.IsPathPossible(toKey, g) && validator.IsPathPossible(toExit, g) {
-			return
+			return m, nil
 		}
 	}
+
+	return nil, fmt.Errorf("failed to generate game world, max attemntps reached")
 }
