@@ -32,35 +32,35 @@ func NewServer(port string, jMazeMap []byte) (s *ServerApi, err error) {
 }
 
 // Handle TCP requests from clients
-func (s *ServerApi) Handle() error {
+func (s *ServerApi) Handle() (isClosed bool, handleErr error) {
 	defer s.l.Close()
 
 	c, err := s.l.Accept()
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	log.Printf("-> Accepted new connection from %s...", c.RemoteAddr())
+	log.Printf("-> TCP API server, accepted new connection from %s...", c.RemoteAddr())
 
 	for {
 		netData, err := bufio.NewReader(c).ReadString('\n')
 		if err != nil {
-			return err
+			return false, err
 		}
 		sReq := string(netData)
 
 		// Handle tcp requests
 		if strings.TrimSpace(sReq) == getJsonMaze {
-			log.Println("-> Client requested maze map...")
+			log.Println("-> TCP API server, client requested maze map...")
 			_, err = c.Write(s.m)
 			if err != nil {
-				return err
+				return false, err
 			}
 		}
 
 		if strings.TrimSpace(sReq) == stopServer {
-			log.Println("-> Client requested to shutdown game server...")
-			return nil
+			log.Println("-> TCP API server, client requested to shutdown game server...")
+			return true, nil
 		}
 	}
 }

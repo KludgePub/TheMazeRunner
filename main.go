@@ -35,18 +35,26 @@ func main() {
 		panic(jmErr)
 	}
 
-	log.Printf("%s\n", "-> Initilizing the maze server...")
-	server, serverErr := api.NewServer("40", jm)
-	if serverErr != nil {
-		panic(serverErr)
+	// TCP API handling for game client
+	for {
+		log.Printf("%s\n", "-> TCP API server, initilizing the maze server...")
+		server, serverErr := api.NewServer("40", jm)
+		if serverErr != nil {
+			panic(serverErr)
+		}
+
+		isClosed, handleErr := server.Handle()
+		if handleErr != nil {
+			log.Printf("-> TCP API server: %s...", handleErr.Error())
+		}
+		if isClosed {
+			log.Printf("-> TCP API server is gracefully shutdown...")
+			break
+		}
 	}
 
-	log.Printf("%s\n", "-> Server ready to handle TCP requests...")
-	handleErr := server.Handle()
-	if handleErr != nil {
-		panic(handleErr)
-	}
-	// TODO Add storage to register: Player, Maze, Score, Locations
+	// HTTP API handling for game players
+	// TODO add player API
 }
 
 // CreateGameWorld maze map
