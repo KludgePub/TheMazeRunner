@@ -17,7 +17,7 @@ func init() {
 }
 
 func main() {
-	row, column := 5, 5
+	row, column := 20, 20
 
 	log.Printf("-> Generating new maze (%dx%d)...\n", row, column)
 
