@@ -37,18 +37,18 @@ func main() {
 
 	// TCP API handling for game client
 	for {
-		log.Printf("%s\n", "-> TCP API server, initilizing the maze server...")
-		server, serverErr := api.NewServer("40", jm)
-		if serverErr != nil {
-			panic(serverErr)
+		log.Printf("%s\n", "-> UDP API server, initilizing new connection...")
+		conn, cErr := api.NewServerConnection("40", jm)
+		if cErr != nil {
+			panic(cErr)
 		}
 
-		isClosed, handleErr := server.Handle()
+		isClosed, handleErr := conn.Handle()
 		if handleErr != nil {
-			log.Printf("-> TCP API server: %s...", handleErr.Error())
+			log.Printf("-> UDP API server handling error: %s...", handleErr.Error())
 		}
 		if isClosed {
-			log.Printf("-> TCP API server is gracefully shutdown...")
+			log.Printf("-> TUDP API server is gracefully shutdown...")
 			break
 		}
 	}
@@ -61,7 +61,7 @@ func main() {
 func CreateGameWorld(r, c int) (m *maze.Map, err error) {
 	const MaxAttempt = int(^uint(0) >> 1)
 
-	for i := 0; i <= MaxAttempt; i++ {
+	for i := 1; i <= MaxAttempt; i++ {
 		log.Printf("-> Assemble a maze in (%d) attempt...\n", i)
 
 		m = maze.NewMaze(r, c)

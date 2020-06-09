@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bufio"
 	"log"
 	"net"
 	"strings"
@@ -15,15 +14,15 @@ const (
 // ServerApi used to communicate with game client
 type ServerApi struct {
 	p string
-	l net.Listener
+	l net.PacketConn
 	m []byte // serialized maze graph in json
 }
 
-// NewServer create new tcp server api
-func NewServer(port string, jMazeMap []byte) (s *ServerApi, err error) {
+// NewServerConnection create new tcp server api
+func NewServerConnection(port string, jMazeMap []byte) (s *ServerApi, err error) {
 	s = &ServerApi{p: port, m: jMazeMap}
 
-	s.l, err = net.Listen("tcp", ":"+s.p)
+	s.l, err = net.ListenPacket("udp", "127.0.0.1:"+s.p)
 	if err != nil {
 		return nil, err
 	}
@@ -35,31 +34,28 @@ func NewServer(port string, jMazeMap []byte) (s *ServerApi, err error) {
 func (s *ServerApi) Handle() (isClosed bool, handleErr error) {
 	defer s.l.Close()
 
-	c, err := s.l.Accept()
-	if err != nil {
-		return false, err
-	}
-
-	log.Printf("-> TCP API server, accepted new connection from %s...", c.RemoteAddr())
-
+	log.Printf("%s%s\n", "-> UDP API server now handled at ", s.l.LocalAddr())
 	for {
-		netData, err := bufio.NewReader(c).ReadString('\n')
-		if err != nil {
-			return false, err
+		buffer := make([]byte, 1024)
+		_, from, readErr := s.l.ReadFrom(buffer)
+		if readErr != nil {
+			log.Printf("-> UDP API server, incoming read error: %v", readErr.Error())
+			continue
 		}
-		sReq := string(netData)
+
+		netData := string(buffer)
+		log.Printf("-> UDP API server, incoming data (%s) from: %s", netData, from)
 
 		// Handle tcp requests
-		if strings.TrimSpace(sReq) == getJsonMaze {
-			log.Println("-> TCP API server, client requested maze map...")
-			_, err = c.Write(s.m)
-			if err != nil {
-				return false, err
+		if strings.Contains(netData, getJsonMaze) {
+			log.Println("-> UDP API server, client requested maze map...")
+			_, writeErr := s.l.WriteTo(s.m, from)
+			if writeErr != nil {
+				log.Printf("-> TCP API server, writing response error: %v", writeErr.Error())
+				continue
 			}
-		}
-
-		if strings.TrimSpace(sReq) == stopServer {
-			log.Println("-> TCP API server, client requested to shutdown game server...")
+		} else if strings.Contains(netData, stopServer) {
+			log.Println("-> UDP API server, client requested to shutdown game server...")
 			return true, nil
 		}
 	}
