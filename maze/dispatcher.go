@@ -20,6 +20,7 @@ type Node struct {
 	Entity byte `json:"entity,omitempty"`
 	// Point holds location
 	Point Point `json:"point"`
+
 	// IsLeftNeighbor exist
 	IsLeftNeighbor bool `json:"is_left_neighbor"`
 	// IsRightNeighbor exist
@@ -29,7 +30,7 @@ type Node struct {
 	// IsBottomNeighbor exist
 	IsBottomNeighbor bool `json:"is_bottom_neighbor"`
 
-	// Do not marshal json, it will be recursive
+	// Do not marshal nodes, it will be recursive
 
 	// LeftNeighbor edged nodes
 	LeftNeighbor *Node `json:"-"`

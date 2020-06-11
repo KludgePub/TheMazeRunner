@@ -5,19 +5,26 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/LinMAD/TheMazeRunnerServer/api"
+	"github.com/LinMAD/TheMazeRunnerServer/api/game"
+	"github.com/LinMAD/TheMazeRunnerServer/api/player"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 	"github.com/LinMAD/TheMazeRunnerServer/validator"
 )
+
+var isRunning = true
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
-	row, column := 20, 20
+	row, column := 20, 20 // TODO Read from input params or json config
 
 	log.Printf("-> Generating new maze (%dx%d)...\n", row, column)
 
@@ -32,29 +39,18 @@ func main() {
 
 	jm, jmErr := json.Marshal(maze.DispatchToGraph(m))
 	if jmErr != nil {
-		panic(jmErr)
+		log.Fatalf("-> Unable to marshal game world: %v", jmErr)
 	}
 
-	// TCP API handling for game client
-	for {
-		log.Printf("%s\n", "-> UDP API server, initilizing new connection...")
-		conn, cErr := api.NewServerConnection("40", jm)
-		if cErr != nil {
-			panic(cErr)
-		}
-
-		isClosed, handleErr := conn.Handle()
-		if handleErr != nil {
-			log.Printf("-> UDP API server handling error: %s...", handleErr.Error())
-		}
-		if isClosed {
-			log.Printf("-> TUDP API server is gracefully shutdown...")
-			break
-		}
+	h, err := os.Hostname()
+	if err != nil {
+		log.Fatalf("Failed to get hostname: %v", err)
 	}
 
-	// HTTP API handling for game players
-	// TODO add player API
+	go ExecuteServerHTTP(h, 80)
+	go ExecuteServerUDP(jm)
+
+	for isRunning {}
 }
 
 // CreateGameWorld maze map
@@ -77,4 +73,49 @@ func CreateGameWorld(r, c int) (m *maze.Map, err error) {
 	}
 
 	return nil, fmt.Errorf("failed to generate game world, max attemntps reached")
+}
+
+// ExecuteServerUDP API handling for game client
+func ExecuteServerUDP(gameMap []byte) {
+	for {
+		log.Printf("%s\n", "-> UDP API executer: initilizing new connection...")
+		conn, cErr := game.NewServerConnection("40", gameMap)
+		if cErr != nil {
+			panic(cErr)
+		}
+
+		isClosed, handleErr := conn.Handle()
+		if handleErr != nil {
+			log.Printf("-> UDP API executer: handling error: %s...", handleErr.Error())
+		}
+		if isClosed {
+			log.Printf("-> UDP API executer: is gracefully shutdown...")
+			break
+		}
+	}
+}
+
+// ExecuteServerHTTP API handling for players
+func ExecuteServerHTTP(hostname string, port int) {
+	a := player.NewPlayerApi(hostname)
+
+	go func() { // shutdown gracefully
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+		<-sig
+
+		log.Println("-> HTTP API executor: Performing graceful shutdown of HTTP API...")
+		select {
+		case <-time.After(1*time.Second):
+			if err := a.Shutdown(); err != nil {
+				log.Fatalf("-> HTTP API executor: Failed to shutdown server, %v", err)
+			}
+			isRunning = false
+		}
+	}()
+
+	log.Printf("%s %v...\n", "-> HTTP API executor: ready to listen on port", port)
+	if err := a.Start(port); err != http.ErrServerClosed {
+		panic(fmt.Sprintf("%s %v", "-> HTTP API executor: server failed,", err))
+	}
 }
