@@ -27,11 +27,14 @@ func (api *HTTPServerAPI) router(w http.ResponseWriter, r *http.Request) {
 
 	path := r.URL.Path
 
+	// TODO Loopback requesters if they don't have player token id
 	switch r.Method {
 	case http.MethodGet:
 		switch {
+		case path == "/world":
+			api.handlerPlayerMazeData(w, r)
 		case path == "/":
-			api.handlerHome(w, r)
+			api.handlerHomeDoc(w, r)
 		default:
 			api.jsonResponse(w, "not found", http.StatusNotFound)
 		}

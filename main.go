@@ -25,7 +25,7 @@ func init() {
 }
 
 func main() {
-	row, column := 20, 20 // TODO Read from input params or json config
+	row, column := 2, 2 // TODO Read from input params or json config
 
 	log.Printf("-> Generating new maze (%dx%d)...\n", row, column)
 
@@ -38,7 +38,8 @@ func main() {
 	log.Printf("-> Visual map:\n")
 	log.Printf("\n%s", maze.PrintMaze(m))
 
-	jm, jmErr := json.Marshal(maze.DispatchToGraph(m))
+	mg := maze.DispatchToGraph(m)
+	jm, jmErr := json.Marshal(mg)
 	if jmErr != nil {
 		log.Fatalf("-> Unable to marshal game world: %v", jmErr)
 	}
@@ -48,7 +49,7 @@ func main() {
 		log.Fatalf("Failed to get hostname: %v", err)
 	}
 
-	go ExecuteServerHTTP(h, 80)
+	go ExecuteServerHTTP(mg, h, 80)
 	go ExecuteServerUDP(jm)
 
 	for isRunning {
@@ -98,8 +99,8 @@ func ExecuteServerUDP(gameMap []byte) {
 }
 
 // ExecuteServerHTTP API handling for players
-func ExecuteServerHTTP(hostname string, port int) {
-	a := player.NewPlayerApi(hostname)
+func ExecuteServerHTTP(mazeGraph *maze.Graph, hostname string, port int) {
+	a := player.NewPlayerApi(mazeGraph, hostname)
 
 	go func() { // shutdown gracefully
 		sig := make(chan os.Signal, 1)

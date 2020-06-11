@@ -10,32 +10,20 @@ import (
 
 const logTag = "-> HTTP API server:"
 
-// TokenID unique id of player to trace actions
-type TokenID string
-
-// HTTPServerAPI used to communicate with players
-type HTTPServerAPI struct {
-	server   *http.Server
-	hostname string
-	// Players in this game
-	Players map[TokenID]*Player
-}
-
-// Player general data
-type Player struct {
-	// ID of player
-	ID TokenID `json:"id"`
-	// Location of the player
-	Location maze.Point `json:"location"`
-	// LastMovementPath how player requested to walk
-	LastMovementPath []maze.Point `json:"last_movement_path"`
-}
-
 // NewPlayerApi to handle players requests
-func NewPlayerApi(hostname string) *HTTPServerAPI {
+func NewPlayerApi(gameMap *maze.Graph, hostname string) *HTTPServerAPI {
+	egm := make([]string, len(gameMap.Nodes))
+	i := 0
+	for _, n := range gameMap.Nodes {
+		egm[i] = maze.PrintGraphNode(n, false)
+		i++
+	}
+
 	return &HTTPServerAPI{
 		hostname: hostname,
 		Players:  make(map[TokenID]*Player),
+		gameMap:  gameMap,
+		mazeMap:  GameMapData{egm},
 	}
 }
 

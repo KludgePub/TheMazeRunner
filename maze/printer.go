@@ -22,7 +22,7 @@ func PrintGraphNode(n *Node, isPrettyPrint bool) string {
 		return fmt.Sprintf("%s => %d %d %d %d %d %d", string(n.Entity), x1, y1, x2, y2, x3, y3)
 	}
 
-	return fmt.Sprintf("%d %d %d %d %d %d", x1, y1, x2, y2, x3, y3)
+	return fmt.Sprintf("%d %d, %d %d, %d %d", x1, y1, x2, y2, x3, y3)
 }
 
 // String parsing maze map to text interpretation

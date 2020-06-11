@@ -7,7 +7,7 @@ import (
 	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
 )
 
-// MazeMap by rows
+// mazeMap by rows
 type Map struct {
 	// Container of rows and columns
 	Container [][]byte
