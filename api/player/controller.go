@@ -11,7 +11,7 @@ type response struct {
 	// Message provided in body
 	Message string `json:"message"`
 	// Status of HTTP code
-	Status  int    `json:"status"`
+	Status int `json:"status"`
 }
 
 // jsonResponse helper to wrap responses to json format
@@ -47,7 +47,7 @@ func (api *HTTPServerAPI) handlerHome(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO Register new player
+// TODO Give to player maze data to assemble: current node, right node, bottom node => 0 0, 0 1, 1 0  (x,y)
 // TODO Collect requested movement path
 // TODO Interaction handling with maze object like with "K" key to collect and handle race condition between players
 // TODO Scoring of players?
-

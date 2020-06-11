@@ -20,6 +20,7 @@ import (
 var isRunning = true
 
 func init() {
+	// TODO fix: if exec all tests this will break static data
 	rand.Seed(time.Now().UnixNano())
 }
 
@@ -50,7 +51,8 @@ func main() {
 	go ExecuteServerHTTP(h, 80)
 	go ExecuteServerUDP(jm)
 
-	for isRunning {}
+	for isRunning {
+	}
 }
 
 // CreateGameWorld maze map
@@ -106,7 +108,7 @@ func ExecuteServerHTTP(hostname string, port int) {
 
 		log.Println("-> HTTP API executor: Performing graceful shutdown of HTTP API...")
 		select {
-		case <-time.After(1*time.Second):
+		case <-time.After(1 * time.Second):
 			if err := a.Shutdown(); err != nil {
 				log.Fatalf("-> HTTP API executor: Failed to shutdown server, %v", err)
 			}

@@ -20,9 +20,9 @@ const (
 type UDPServerAPI struct {
 	// forceClose of UDP server
 	forceClose chan os.Signal
-	p string
-	l net.PacketConn
-	m []byte // serialized maze graph in json
+	p          string
+	l          net.PacketConn
+	m          []byte // serialized maze graph in json
 }
 
 // NewServerConnection create new tcp server api
