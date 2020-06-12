@@ -1,6 +1,7 @@
 package player
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -15,23 +16,49 @@ func (api *HTTPServerAPI) bootRouter() *http.ServeMux {
 
 // router for the requests
 func (api *HTTPServerAPI) router(w http.ResponseWriter, r *http.Request) {
-	pId := "TODO ADD PLAYER TOKEN ID" // TODO Get player token from request headers
+	log.Printf("%s Incoming request (ContentLength: %d) - URL: %s", logTag, r.ContentLength, r.URL.Path)
 
-	log.Printf(
-		"%s Incoming request from %s to URL: %s\n ContentLength: %d",
-		logTag,
-		r.URL.Path,
-		pId,
-		r.ContentLength,
-	)
-
+	var pid string
 	path := r.URL.Path
+
+	if path != "/player/new" && path != "/" {
+		pid = r.Header.Get(headerPlayerTokenId)
+		if pid == "" || len(pid) < 16 {
+			api.jsonResponse(
+				w,
+				fmt.Sprintf("Not found %s in request headers or id is invalid", headerPlayerTokenId),
+				http.StatusBadRequest,
+			)
+			return
+		} else if _, extErr := api.extractPlayer(TokenID(pid)); extErr != nil {
+			api.jsonResponse(
+				w,
+				fmt.Sprintf("Not found %s in request headers or id is invalid", headerPlayerTokenId),
+				http.StatusBadRequest,
+			)
+
+			return
+		}
+	}
+
+	log.Printf("%s Handling request from (%s) to %s\n", logTag, pid, r.URL.Path)
 
 	// TODO Loopback requesters if they don't have player token id
 	switch r.Method {
+	case http.MethodPost:
+		switch {
+		case path == "/player/new":
+			api.handlerPlayerRegister(w, r)
+		case path == "/player/move":
+			api.handlerPlayerAcceptPath(w, r)
+		default:
+			api.jsonResponse(w, "not found", http.StatusNotFound)
+		}
 	case http.MethodGet:
 		switch {
-		case path == "/world":
+		case path == "/player/stats":
+			api.handlerPlayerStats(w, r)
+		case path == "/player/world":
 			api.handlerPlayerMazeData(w, r)
 		case path == "/":
 			api.handlerHomeDoc(w, r)

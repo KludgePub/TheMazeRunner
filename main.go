@@ -49,10 +49,15 @@ func main() {
 		log.Fatalf("Failed to get hostname: %v", err)
 	}
 
-	go ExecuteServerHTTP(mg, h, 80)
+	go ExecuteServerHTTP(m, mg, h, 80)
 	go ExecuteServerUDP(jm)
 
 	for isRunning {
+		// TODO When player submitting movement path:
+		// TODO 1. validate if it's reachable
+		// TODO 2. Move to possible point
+		// TODO 3. Save new location
+		// TODO 4. Report to game client via UDP about player new location and with correct movement path
 	}
 }
 
@@ -99,8 +104,8 @@ func ExecuteServerUDP(gameMap []byte) {
 }
 
 // ExecuteServerHTTP API handling for players
-func ExecuteServerHTTP(mazeGraph *maze.Graph, hostname string, port int) {
-	a := player.NewPlayerApi(mazeGraph, hostname)
+func ExecuteServerHTTP(mazeMap *maze.Map, mazeGraph *maze.Graph, hostname string, port int) {
+	a := player.NewPlayerApi(mazeMap, mazeGraph, hostname)
 
 	go func() { // shutdown gracefully
 		sig := make(chan os.Signal, 1)

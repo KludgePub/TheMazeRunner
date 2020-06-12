@@ -11,19 +11,20 @@ import (
 const logTag = "-> HTTP API server:"
 
 // NewPlayerApi to handle players requests
-func NewPlayerApi(gameMap *maze.Graph, hostname string) *HTTPServerAPI {
-	egm := make([]string, len(gameMap.Nodes))
+func NewPlayerApi(mazeMap *maze.Map, mazeGraph *maze.Graph, hostname string) *HTTPServerAPI {
+	egm := make([]string, mazeMap.Size)
 	i := 0
-	for _, n := range gameMap.Nodes {
+	for _, n := range mazeGraph.Nodes {
 		egm[i] = maze.PrintGraphNode(n, false)
 		i++
 	}
 
 	return &HTTPServerAPI{
-		hostname: hostname,
-		Players:  make(map[TokenID]*Player),
-		gameMap:  gameMap,
-		mazeMap:  GameMapData{egm},
+		hostname:     hostname,
+		Players:      make(map[TokenID]*Player),
+		mazeRawMap:   mazeMap,
+		mazeRawGraph: mazeGraph,
+		mazeMap:      GameMapData{egm},
 	}
 }
 

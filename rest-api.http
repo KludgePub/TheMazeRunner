@@ -1,0 +1,51 @@
+# Players API
+
+POST http://localhost:80/player/new
+Accept: */*
+Content-Type: application/json;utf-8
+Cache-Control: no-cache
+
+{
+  "name": "LinMAD"
+}
+
+<> 2020-06-12T021741.200.json
+
+###
+
+GET http://localhost:80/player/world
+Accept: */*
+Content-Type: application/json;utf-8
+Cache-Control: no-cache
+# ID must be used when you generated new player
+PlayerID: eb7c459d-7591-2024-3bc6-aee17d553967
+
+<> 2020-06-12T021741.200.json
+
+###
+
+POST http://localhost:80/player/move
+Accept: */*
+Content-Type: application/json;utf-8
+Cache-Control: no-cache
+# ID must be used when you generated new player
+PlayerID: eb7c459d-7591-2024-3bc6-aee17d553967
+
+[
+  {
+    "x": 0,
+    "y": 0
+  },
+  {
+    "x": 0,
+    "y": 1
+  },
+  {
+    "x": 1,
+    "y": 1
+  }
+]
+
+<> 2020-06-12T021741.200.json
+
+###

@@ -6,6 +6,8 @@ import (
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 )
 
+const headerPlayerTokenId = "PlayerID"
+
 // TokenID unique id of player to trace actions
 type TokenID string
 
@@ -14,17 +16,27 @@ type HTTPServerAPI struct {
 	server   *http.Server
 	hostname string
 	// Players in this game
-	Players map[TokenID]*Player
-	// gameMap where players located
-	gameMap *maze.Graph
+	Players    map[TokenID]*Player
+	// mazeRawMap detailed information about maze
+	mazeRawMap *maze.Map
+	// mazeRawGraph structured as graph
+	mazeRawGraph *maze.Graph
 	// mazeMap divided by nodes for player
 	mazeMap GameMapData
 }
 
+// NewPlayer data
+type NewPlayer struct {
+	// Name of player
+	Name string `json:"name"`
+	// ID assigned to player
+	ID TokenID `json:"id"`
+}
+
 // Player general data
 type Player struct {
-	// ID of player
-	ID TokenID `json:"id"`
+	// Identity of the player
+	Identity NewPlayer `json:"identity"`
 	// Location of the player
 	Location maze.Point `json:"location"`
 	// LastMovementPath how player requested to walk
