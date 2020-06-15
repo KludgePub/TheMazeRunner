@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/LinMAD/TheMazeRunnerServer/generator"
+	"github.com/LinMAD/TheMazeRunnerServer/manager"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 )
 
@@ -57,7 +58,7 @@ func (api *HTTPServerAPI) handlerHomeDoc(w http.ResponseWriter, r *http.Request)
 
 // handlerPlayerRegister to current game session
 func (api *HTTPServerAPI) handlerPlayerRegister(w http.ResponseWriter, r *http.Request) {
-	var p NewPlayer
+	var p Identity
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&p); err != nil {
 		log.Printf("%s unable to get body from accept path route: %v", logTag, err)
@@ -115,7 +116,12 @@ func (api *HTTPServerAPI) handlerPlayerAcceptPath(w http.ResponseWriter, r *http
 		return
 	}
 
-	p.LastMovementPath = path
+	api.gm.AddMovement(manager.PlayerInfo{
+		Name:            p.Identity.Name,
+		ID:              string(p.Identity.ID),
+		CurrentLocation: p.Location,
+		MovementPath:    path,
+	})
 
 	api.jsonResponse(w, "Movement path accepted", http.StatusAccepted)
 }

@@ -13,6 +13,7 @@ import (
 
 	"github.com/LinMAD/TheMazeRunnerServer/api/game"
 	"github.com/LinMAD/TheMazeRunnerServer/api/player"
+	"github.com/LinMAD/TheMazeRunnerServer/manager"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 	"github.com/LinMAD/TheMazeRunnerServer/validator"
 )
@@ -49,8 +50,10 @@ func main() {
 		log.Fatalf("Failed to get hostname: %v", err)
 	}
 
-	go ExecuteServerHTTP(m, mg, h, 80)
-	go ExecuteServerUDP(jm)
+	gm := manager.NewGameManager(m)
+
+	go ExecuteServerHTTP(m, mg, gm, h, 80)
+	go ExecuteServerUDP(gm, jm)
 
 	for isRunning {
 		// TODO When player submitting movement path:
@@ -84,7 +87,7 @@ func CreateGameWorld(r, c int) (m *maze.Map, err error) {
 }
 
 // ExecuteServerUDP API handling for game client
-func ExecuteServerUDP(gameMap []byte) {
+func ExecuteServerUDP(gm *manager.GameManager, gameMap []byte) {
 	for {
 		log.Printf("%s\n", "-> UDP API executer: initilizing new connection...")
 		conn, cErr := game.NewServerConnection("40", gameMap)
@@ -92,7 +95,7 @@ func ExecuteServerUDP(gameMap []byte) {
 			panic(cErr)
 		}
 
-		isClosed, handleErr := conn.Handle()
+		isClosed, handleErr := conn.Handle(gm)
 		if handleErr != nil {
 			log.Printf("-> UDP API executer: handling error: %s...", handleErr.Error())
 		}
@@ -104,8 +107,8 @@ func ExecuteServerUDP(gameMap []byte) {
 }
 
 // ExecuteServerHTTP API handling for players
-func ExecuteServerHTTP(mazeMap *maze.Map, mazeGraph *maze.Graph, hostname string, port int) {
-	a := player.NewPlayerApi(mazeMap, mazeGraph, hostname)
+func ExecuteServerHTTP(mazeMap *maze.Map, mazeGraph *maze.Graph, gm *manager.GameManager,hostname string, port int) {
+	a := player.NewPlayerApi(gm, mazeMap, mazeGraph, hostname)
 
 	go func() { // shutdown gracefully
 		sig := make(chan os.Signal, 1)

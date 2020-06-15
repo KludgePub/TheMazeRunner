@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/LinMAD/TheMazeRunnerServer/manager"
 )
 
 const logTag = "-> UDP API server:"
@@ -14,6 +16,7 @@ const logTag = "-> UDP API server:"
 const (
 	stopServer  string = "STOP_SERVER"
 	getJsonMaze        = "GET_JSON_MAZE_MAP"
+	getPlayerMoves     = "GET_PLAYER_MOVES"
 )
 
 // UDPServerAPI used to communicate with game client
@@ -38,7 +41,7 @@ func NewServerConnection(port string, jMazeMap []byte) (s *UDPServerAPI, err err
 }
 
 // Handle TCP requests from clients
-func (s *UDPServerAPI) Handle() (isClosed bool, handleErr error) {
+func (s *UDPServerAPI) Handle(gm *manager.GameManager) (isClosed bool, handleErr error) {
 	defer s.l.Close()
 
 	go func(isClosed bool) {
@@ -81,6 +84,12 @@ func (s *UDPServerAPI) Handle() (isClosed bool, handleErr error) {
 		} else if strings.Contains(netData, stopServer) {
 			log.Printf("%s client requested to shutdown game server...\n", logTag)
 			isClosed = true
+		} else if strings.Contains(netData, getPlayerMoves) {
+			_, writeErr := s.l.WriteTo(gm.GetPlayerMovements(), from)
+			if writeErr != nil {
+				log.Printf("%s writing response error: %v\n", logTag, writeErr.Error())
+				continue
+			}
 		}
 	}
 
