@@ -45,6 +45,7 @@ func (gm *GameManager) AddMovement(info PlayerInfo) {
 	}
 }
 
+// GetPlayerMovements only possible path
 func (gm *GameManager) GetPlayerMovements() (moves []byte) {
 	gm.lock.Lock()
 	defer gm.lock.Unlock()

@@ -26,7 +26,7 @@ func init() {
 }
 
 func main() {
-	row, column := 2, 2 // TODO Read from input params or json config
+	row, column := 4, 4 // TODO Read from input params or json config
 
 	log.Printf("-> Generating new maze (%dx%d)...\n", row, column)
 
