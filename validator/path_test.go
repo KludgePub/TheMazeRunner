@@ -151,7 +151,7 @@ func TestIsPathPossible_StaticBigMaze(t *testing.T) {
 func TestSolveMaze_CheckPathToKey(t *testing.T) {
 	prepare(t)
 
-	solved := SolvePath(*m, m.Entrance, m.Key)
+	solved := GetSolvedPath(*m, m.Entrance, m.Key)
 	t.Logf("Path:\n%v", solved)
 
 	if IsPathPossible(solved, g) == false {
@@ -164,7 +164,7 @@ func TestSolveMaze_CheckPathToKey(t *testing.T) {
 func TestSolveMaze_CheckPathToExit(t *testing.T) {
 	prepare(t)
 
-	solved := SolvePath(*m, m.Key, m.Exit)
+	solved := GetSolvedPath(*m, m.Key, m.Exit)
 	t.Logf("Path:\n%v", solved)
 
 	if IsPathPossible(solved, g) == false {
@@ -184,7 +184,7 @@ func TestSolveMaze_RandomMazeToKey(t *testing.T) {
 	t.Logf("\n%s", maze.PrintMaze(bigMaze))
 	t.Logf("S x,y: %d,%d and K x,y: %d,%d", bigMaze.Entrance.X, bigMaze.Entrance.Y, bigMaze.Key.X, bigMaze.Key.Y)
 
-	solved := SolvePath(*bigMaze, bigMaze.Entrance, bigMaze.Key)
+	solved := GetSolvedPath(*bigMaze, bigMaze.Entrance, bigMaze.Key)
 	t.Logf("Path:%v", solved)
 	if IsPathPossible(solved, maze.DispatchToGraph(bigMaze)) == false {
 		t.Error("Path to key must be found")
@@ -203,11 +203,74 @@ func TestSolveMaze_RandomMazeToExit(t *testing.T) {
 	t.Logf("\n%s", maze.PrintMaze(bigMaze))
 	t.Logf("S x,y: %d,%d and E x,y: %d,%d", bigMaze.Entrance.X, bigMaze.Entrance.Y, bigMaze.Exit.X, bigMaze.Exit.Y)
 
-	solved := SolvePath(*bigMaze, bigMaze.Entrance, bigMaze.Exit)
+	solved := GetSolvedPath(*bigMaze, bigMaze.Entrance, bigMaze.Exit)
 	t.Logf("Path:%v", solved)
 	if IsPathPossible(solved, maze.DispatchToGraph(bigMaze)) == false {
 		t.Error("Path to key must be found")
 	}
 
 	t.Logf("\n%s", maze.PrintMaze(bigMaze))
+}
+
+func TestSolveMaze_GetPossiblePathExcludingWallMove(t *testing.T) {
+	prepare(t)
+
+	givenPath := make([]maze.Point, 3)
+
+	for _, n := range g.Nodes {
+		if n.Entity == asset.StartingPoint {
+			givenPath[0] = n.Point
+		}
+		if n.Entity == asset.KeyPoint {
+			givenPath[1] = n.Point
+		}
+		if n.Entity == asset.EndingPoint {
+			givenPath[2] = n.Point
+		}
+	}
+
+	possiblePath := GetPossiblePath(givenPath, g)
+	if possiblePath[0] != givenPath[0] {
+		t.Fatal("Expected to have 1 move S => S")
+	}
+	if possiblePath[1] != givenPath[1] {
+		t.Fatal("Expected to have 2 move S => K")
+	}
+	if len(possiblePath) > 2 {
+		t.Fatal("Expected to have only 2 moves")
+	}
+}
+
+func TestSolveMaze_GetPossiblePathIfJumpingMoves(t *testing.T) {
+	prepare(t)
+
+	givenPath := make([]maze.Point, 3)
+
+	for _, n := range g.Nodes {
+		if n.Entity == asset.StartingPoint {
+			givenPath[0] = n.Point
+		}
+		if n.Entity == asset.EndingPoint {
+			givenPath[1] = n.Point
+		}
+	}
+
+	possiblePath := GetPossiblePath(givenPath, g)
+	if possiblePath[0] != givenPath[0] {
+		t.Fatal("Expected to have 1 move S => S")
+	}
+	if len(possiblePath) > 1 {
+		t.Fatal("Expected only one move")
+	}
+}
+
+func TestSolveMaze_GetPossiblePathIfSameMoveRepeats(t *testing.T) {
+	prepare(t)
+
+	givenPath := make([]maze.Point, 3)
+	possiblePath := GetPossiblePath(givenPath, g)
+
+	if len(possiblePath) < 3 {
+		t.Fatal("Expected only one move")
+	}
 }

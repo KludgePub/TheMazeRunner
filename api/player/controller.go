@@ -10,6 +10,7 @@ import (
 	"github.com/LinMAD/TheMazeRunnerServer/generator"
 	"github.com/LinMAD/TheMazeRunnerServer/manager"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
+	"github.com/LinMAD/TheMazeRunnerServer/validator"
 )
 
 // jsonResponse helper to wrap responses to json format
@@ -116,11 +117,18 @@ func (api *HTTPServerAPI) handlerPlayerAcceptPath(w http.ResponseWriter, r *http
 		return
 	}
 
+	path = append([]maze.Point{p.Location}, path...)
+	log.Printf("%s Player %s given path: %v", logTag, pid, path)
+	possiblePath := validator.GetPossiblePath(path, api.mazeRawGraph)
+	log.Printf("%s Player %s possible path: %v", logTag, pid, possiblePath)
+	p.Location = possiblePath[len(possiblePath)-1]
+	log.Printf("%s Player %s new location: %v", logTag, pid, p.Location)
+
 	api.gm.AddMovement(manager.PlayerInfo{
 		Name:            p.Identity.Name,
 		ID:              string(p.Identity.ID),
 		CurrentLocation: p.Location,
-		MovementPath:    path,
+		MovementPath:    possiblePath,
 	})
 
 	api.jsonResponse(w, "Movement path accepted", http.StatusAccepted)

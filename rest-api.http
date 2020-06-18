@@ -29,19 +29,15 @@ Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: c6a8e091-d425-5c0b-dd79-5a480bf5025d
+PlayerID: 43ccd840-de54-3425-ce8d-4c4cd9902a6a
 
 [
   {
-    "x": 0,
-    "y": 0
-  },
-  {
-    "x": 0,
+    "x": 1,
     "y": 1
   },
   {
-    "x": 1,
+    "x": 2,
     "y": 1
   }
 ]

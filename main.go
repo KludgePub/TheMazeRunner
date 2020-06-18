@@ -75,8 +75,8 @@ func CreateGameWorld(r, c int) (m *maze.Map, err error) {
 		m.Generate()
 		g := maze.DispatchToGraph(m)
 
-		toKey := validator.SolvePath(*m, m.Entrance, m.Key)
-		toExit := validator.SolvePath(*m, m.Entrance, m.Exit)
+		toKey := validator.GetSolvedPath(*m, m.Entrance, m.Key)
+		toExit := validator.GetSolvedPath(*m, m.Entrance, m.Exit)
 
 		if validator.IsPathPossible(toKey, g) && validator.IsPathPossible(toExit, g) {
 			return m, nil
