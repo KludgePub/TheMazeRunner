@@ -97,7 +97,7 @@ func (api *HTTPServerAPI) handlerPlayerStats(w http.ResponseWriter, r *http.Requ
 
 // handlerPlayerMazeData give to player maze data to assemble: current node, right node, bottom node => 0 0, 0 1, 1 0  (x,y)
 func (api *HTTPServerAPI) handlerPlayerMazeData(w http.ResponseWriter, r *http.Request) {
-	api.jsonResponse(w, api.mazeMap.EncodedMazeNodes, http.StatusOK)
+	api.jsonResponse(w, api.mazeMap, http.StatusOK)
 }
 
 // handlerPlayerAcceptPath collect requested movement path from player

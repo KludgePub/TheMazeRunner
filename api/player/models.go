@@ -47,6 +47,8 @@ type Player struct {
 type GameMapData struct {
 	// EncodedMazeNodes for players, contains maze nodes and neighbors
 	EncodedMazeNodes []string `json:"maze_nodes"`
+	// Locations in the maze, start, finish, key
+	Locations map[string]maze.Point `json:"locations"`
 }
 
 // response for HTTP
