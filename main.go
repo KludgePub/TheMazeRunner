@@ -13,6 +13,7 @@ import (
 
 	"github.com/LinMAD/TheMazeRunnerServer/api/game"
 	"github.com/LinMAD/TheMazeRunnerServer/api/player"
+	"github.com/LinMAD/TheMazeRunnerServer/generator"
 	"github.com/LinMAD/TheMazeRunnerServer/manager"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 	"github.com/LinMAD/TheMazeRunnerServer/validator"
@@ -32,10 +33,15 @@ func main() {
 
 	m, mErr := CreateGameWorld(row, column)
 	if mErr != nil {
-		panic(mErr)
+		log.Fatalf("-> Unable to create game world: %v", mErr)
 	}
 
 	log.Println("-> Maze ready...")
+	m.KeyCode, mErr = generator.CreateUUID()
+	if mErr != nil {
+		log.Fatalf("-> Unable to generate key UID: %v", mErr)
+	}
+
 	log.Printf("-> Visual map:\n")
 	log.Printf("\n%s", maze.PrintMaze(m))
 
@@ -55,13 +61,7 @@ func main() {
 	go ExecuteServerHTTP(m, mg, gm, h, 80)
 	go ExecuteServerUDP(gm, jm)
 
-	for isRunning {
-		// TODO When player submitting movement path:
-		// TODO 1. validate if it's reachable
-		// TODO 2. Move to possible point
-		// TODO 3. Save new location
-		// TODO 4. Report to game client via UDP about player new location and with correct movement path
-	}
+	for isRunning {}
 }
 
 // CreateGameWorld maze map
