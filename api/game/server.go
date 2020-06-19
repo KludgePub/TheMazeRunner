@@ -14,9 +14,9 @@ import (
 const logTag = "-> UDP API server:"
 
 const (
-	stopServer  string = "STOP_SERVER"
-	getJsonMaze        = "GET_JSON_MAZE_MAP"
-	getPlayerMoves     = "GET_PLAYER_MOVES"
+	stopServer     string = "STOP_SERVER"
+	getJsonMaze           = "GET_JSON_MAZE_MAP"
+	getPlayerMoves        = "GET_PLAYER_MOVES"
 )
 
 // UDPServerAPI used to communicate with game client

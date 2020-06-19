@@ -63,7 +63,7 @@ func (api *HTTPServerAPI) handlerPlayerRegister(w http.ResponseWriter, r *http.R
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&p); err != nil {
 		log.Printf("%s unable to get body from accept path route: %v", logTag, err)
-		api.jsonResponse(w, "Internal server error", http.StatusInternalServerError)
+		api.jsonResponse(w, "Invalid data in body", http.StatusBadRequest)
 		return
 	}
 
@@ -78,6 +78,7 @@ func (api *HTTPServerAPI) handlerPlayerRegister(w http.ResponseWriter, r *http.R
 	api.Players[p.ID] = &Player{
 		Identity: p,
 		Location: api.mazeRawMap.Entrance,
+		gameOver: false,
 	}
 
 	api.jsonResponse(w, p, http.StatusOK)
@@ -108,7 +109,7 @@ func (api *HTTPServerAPI) handlerPlayerAcceptPath(w http.ResponseWriter, r *http
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&path); err != nil {
 		log.Printf("%s unable to get body from accept path route: %v", logTag, err)
-		api.jsonResponse(w, "Internal server error", http.StatusInternalServerError)
+		api.jsonResponse(w, "Invalid data in body", http.StatusBadRequest)
 		return
 	}
 
@@ -129,7 +130,6 @@ func (api *HTTPServerAPI) handlerPlayerAcceptPath(w http.ResponseWriter, r *http
 	api.jsonResponse(w, "Movement path accepted", http.StatusAccepted)
 }
 
-
 // handlerPlayerInteraction player can interact in location
 func (api *HTTPServerAPI) handlerPlayerInteraction(w http.ResponseWriter, r *http.Request) {
 	pid := r.Header.Get(headerPlayerTokenId)
@@ -148,25 +148,25 @@ func (api *HTTPServerAPI) handlerPlayerInteraction(w http.ResponseWriter, r *htt
 	// Respond by action method
 	// Get item id
 	if r.Method == http.MethodGet && p.Location == api.mazeRawMap.Key {
-		api.jsonResponse(w, map[string]string{"item_id": api.mazeRawMap.KeyCode}, http.StatusOK)
+		api.jsonResponse(w, Item{ID: api.mazeRawMap.KeyCode}, http.StatusOK)
 		return
 	}
 
 	// Check if all conditions passed for exit
 	if r.Method == http.MethodPost && p.Location == api.mazeRawMap.Exit {
-		if err := r.ParseForm(); err != nil {
-			log.Printf("%s unable to ParseForm() err: %v", logTag, err)
-			api.jsonResponse(w, "Internal server error", http.StatusInternalServerError)
+		var item Item
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&item); err != nil {
+			log.Printf("%s unable to get body from accept path route: %v", logTag, err)
+			api.jsonResponse(w, "Invalid data in body", http.StatusBadRequest)
 			return
 		}
-
-		log.Printf("%s, post from %s! r.PostFrom = %v\n", logTag, pid, r.PostForm)
-
-		keyCode := r.FormValue("item_id")
-		if api.mazeRawMap.KeyCode != keyCode {
+		if api.mazeRawMap.KeyCode != item.ID {
 			api.jsonResponse(w, "Invalid item id or expired", http.StatusBadRequest)
 			return
 		}
+
+		p.gameOver = true
 
 		api.jsonResponse(w, "Congratulations you did it!", http.StatusOK)
 		return
@@ -174,7 +174,6 @@ func (api *HTTPServerAPI) handlerPlayerInteraction(w http.ResponseWriter, r *htt
 
 	api.jsonResponse(w, "Are you sure about what are you doing?", http.StatusBadRequest)
 }
-
 
 // handlerWorldMazeData give to player maze data to assemble: current node, right node, bottom node => 0 0, 0 1, 1 0  (x,y)
 func (api *HTTPServerAPI) handlerWorldMazeData(w http.ResponseWriter, r *http.Request) {

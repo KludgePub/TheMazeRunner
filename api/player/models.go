@@ -17,14 +17,14 @@ type HTTPServerAPI struct {
 	server   *http.Server
 	hostname string
 	// Players in this game
-	Players    map[TokenID]*Player
+	Players map[TokenID]*Player
 	// mazeRawMap detailed information about maze
 	mazeRawMap *maze.Map
 	// mazeRawGraph structured as graph
 	mazeRawGraph *maze.Graph
 	// mazeMap divided by nodes for player
 	mazeMap GameMapData
-	gm *manager.GameManager
+	gm      *manager.GameManager
 }
 
 // Identity data
@@ -35,12 +35,20 @@ type Identity struct {
 	ID TokenID `json:"id"`
 }
 
+// Item used to exit maze
+type Item struct {
+	// ID represents as unique string
+	ID string `json:"item_id"`
+}
+
 // Player general data
 type Player struct {
 	// Identity of the player
 	Identity Identity `json:"identity"`
 	// Location of the player
 	Location maze.Point `json:"location"`
+	// gameOver depends on if player reached goal or still playing
+	gameOver bool
 }
 
 // GameMapData

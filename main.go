@@ -27,7 +27,7 @@ func init() {
 }
 
 func main() {
-	row, column := 4, 4 // TODO Read from input params or json config
+	row, column := 2, 2 // TODO Read from input params or json config
 
 	log.Printf("-> Generating new maze (%dx%d)...\n", row, column)
 
@@ -61,7 +61,8 @@ func main() {
 	go ExecuteServerHTTP(m, mg, gm, h, 80)
 	go ExecuteServerUDP(gm, jm)
 
-	for isRunning {}
+	for isRunning {
+	}
 }
 
 // CreateGameWorld maze map
@@ -107,7 +108,7 @@ func ExecuteServerUDP(gm *manager.GameManager, gameMap []byte) {
 }
 
 // ExecuteServerHTTP API handling for players
-func ExecuteServerHTTP(mazeMap *maze.Map, mazeGraph *maze.Graph, gm *manager.GameManager,hostname string, port int) {
+func ExecuteServerHTTP(mazeMap *maze.Map, mazeGraph *maze.Graph, gm *manager.GameManager, hostname string, port int) {
 	a := player.NewPlayerApi(gm, mazeMap, mazeGraph, hostname)
 
 	go func() { // shutdown gracefully

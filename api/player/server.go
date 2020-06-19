@@ -26,12 +26,12 @@ func NewPlayerApi(gm *manager.GameManager, mazeMap *maze.Map, mazeGraph *maze.Gr
 		Players:      make(map[TokenID]*Player),
 		mazeRawMap:   mazeMap,
 		mazeRawGraph: mazeGraph,
-		mazeMap:      GameMapData{
+		mazeMap: GameMapData{
 			egm,
 			map[string]maze.Point{
 				"start": mazeMap.Entrance,
-				"exit": mazeMap.Exit,
-				"key": mazeMap.Key,
+				"exit":  mazeMap.Exit,
+				"key":   mazeMap.Key,
 			},
 		},
 		gm: gm,

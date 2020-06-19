@@ -23,14 +23,17 @@ func (api *HTTPServerAPI) router(w http.ResponseWriter, r *http.Request) {
 
 	if path != "/player/new" && path != "/" {
 		pid = r.Header.Get(headerPlayerTokenId)
-		if pid == "" || len(pid) < 16 {
+		if pid == "" || len(pid) < 10 {
 			api.jsonResponse(
 				w,
 				fmt.Sprintf("Not found %s in request headers or id is invalid", headerPlayerTokenId),
 				http.StatusBadRequest,
 			)
 			return
-		} else if _, extErr := api.extractPlayer(TokenID(pid)); extErr != nil {
+		}
+
+		p, extErr := api.extractPlayer(TokenID(pid))
+		if extErr != nil {
 			api.jsonResponse(
 				w,
 				fmt.Sprintf("Not found %s in request headers or id is invalid", headerPlayerTokenId),
@@ -39,11 +42,15 @@ func (api *HTTPServerAPI) router(w http.ResponseWriter, r *http.Request) {
 
 			return
 		}
+
+		if p.gameOver == true {
+			api.jsonResponse(w, "Relax, you already winner drink a tea :)", http.StatusTeapot)
+			return
+		}
 	}
 
 	log.Printf("%s Handling request from (%s) to %s\n", logTag, pid, r.URL.Path)
 
-	// TODO Loopback requesters if they don't have player token id
 	switch r.Method {
 	case http.MethodPost:
 		switch {

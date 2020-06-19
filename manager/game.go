@@ -20,7 +20,7 @@ type PlayerInfo struct {
 	// Name of player
 	Name string `json:"name"`
 	// ID unique key
-	ID   string `json:"id"`
+	ID string `json:"id"`
 	// CurrentLocation of the player
 	CurrentLocation maze.Point `json:"current"`
 	// MovementPath next destination

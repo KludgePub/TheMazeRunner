@@ -6,7 +6,7 @@ Content-Type: application/json;utf-8
 Cache-Control: no-cache
 
 {
-  "name": "Player2"
+  "name": "Player"
 }
 
 ###
@@ -16,7 +16,7 @@ Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: d9c3beac-3206-c411-336d-41651b549729
+PlayerID: 30722a30-63c0-cd92-63c4-e53a28a7b572
 
 ###
 
@@ -25,16 +25,12 @@ Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: a35738dd-7446-f105-6d51-719042aec377
+PlayerID: 30722a30-63c0-cd92-63c4-e53a28a7b572
 
 [
   {
-    "x": 3,
+    "x": 1,
     "y": 1
-  },
-  {
-    "x": 3,
-    "y": 2
   }
 ]
 
@@ -45,15 +41,19 @@ Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: 99af1d60-4320-8379-a064-653a87a69737
+PlayerID: 30722a30-63c0-cd92-63c4-e53a28a7b572
 
 ###
 
-POST http://localhost:80/player/interact?item_id=f5da2664-9d79-1ae6-f3a2-ea55b5a40105
+POST http://localhost:80/player/interact
 Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
-PlayerID: 99af1d60-4320-8379-a064-653a87a69737
+PlayerID: 30722a30-63c0-cd92-63c4-e53a28a7b572
+
+{
+  "item_id": "2b86fbf4-a681-8812-4f44-663f04399661"
+}
 
 ###
 
