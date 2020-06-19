@@ -13,6 +13,8 @@ import (
 
 	"github.com/LinMAD/TheMazeRunnerServer/api/game"
 	"github.com/LinMAD/TheMazeRunnerServer/api/player"
+	"github.com/LinMAD/TheMazeRunnerServer/generator"
+	"github.com/LinMAD/TheMazeRunnerServer/manager"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 	"github.com/LinMAD/TheMazeRunnerServer/validator"
 )
@@ -25,16 +27,21 @@ func init() {
 }
 
 func main() {
-	row, column := 2, 2 // TODO Read from input params or json config
+	row, column := 4, 4 // TODO Read from input params or json config
 
 	log.Printf("-> Generating new maze (%dx%d)...\n", row, column)
 
 	m, mErr := CreateGameWorld(row, column)
 	if mErr != nil {
-		panic(mErr)
+		log.Fatalf("-> Unable to create game world: %v", mErr)
 	}
 
 	log.Println("-> Maze ready...")
+	m.KeyCode, mErr = generator.CreateUUID()
+	if mErr != nil {
+		log.Fatalf("-> Unable to generate key UID: %v", mErr)
+	}
+
 	log.Printf("-> Visual map:\n")
 	log.Printf("\n%s", maze.PrintMaze(m))
 
@@ -49,16 +56,12 @@ func main() {
 		log.Fatalf("Failed to get hostname: %v", err)
 	}
 
-	go ExecuteServerHTTP(m, mg, h, 80)
-	go ExecuteServerUDP(jm)
+	gm := manager.NewGameManager(m)
 
-	for isRunning {
-		// TODO When player submitting movement path:
-		// TODO 1. validate if it's reachable
-		// TODO 2. Move to possible point
-		// TODO 3. Save new location
-		// TODO 4. Report to game client via UDP about player new location and with correct movement path
-	}
+	go ExecuteServerHTTP(m, mg, gm, h, 80)
+	go ExecuteServerUDP(gm, jm)
+
+	for isRunning {}
 }
 
 // CreateGameWorld maze map
@@ -72,8 +75,8 @@ func CreateGameWorld(r, c int) (m *maze.Map, err error) {
 		m.Generate()
 		g := maze.DispatchToGraph(m)
 
-		toKey := validator.SolvePath(*m, m.Entrance, m.Key)
-		toExit := validator.SolvePath(*m, m.Entrance, m.Exit)
+		toKey := validator.GetSolvedPath(*m, m.Entrance, m.Key)
+		toExit := validator.GetSolvedPath(*m, m.Entrance, m.Exit)
 
 		if validator.IsPathPossible(toKey, g) && validator.IsPathPossible(toExit, g) {
 			return m, nil
@@ -84,7 +87,7 @@ func CreateGameWorld(r, c int) (m *maze.Map, err error) {
 }
 
 // ExecuteServerUDP API handling for game client
-func ExecuteServerUDP(gameMap []byte) {
+func ExecuteServerUDP(gm *manager.GameManager, gameMap []byte) {
 	for {
 		log.Printf("%s\n", "-> UDP API executer: initilizing new connection...")
 		conn, cErr := game.NewServerConnection("40", gameMap)
@@ -92,7 +95,7 @@ func ExecuteServerUDP(gameMap []byte) {
 			panic(cErr)
 		}
 
-		isClosed, handleErr := conn.Handle()
+		isClosed, handleErr := conn.Handle(gm)
 		if handleErr != nil {
 			log.Printf("-> UDP API executer: handling error: %s...", handleErr.Error())
 		}
@@ -104,8 +107,8 @@ func ExecuteServerUDP(gameMap []byte) {
 }
 
 // ExecuteServerHTTP API handling for players
-func ExecuteServerHTTP(mazeMap *maze.Map, mazeGraph *maze.Graph, hostname string, port int) {
-	a := player.NewPlayerApi(mazeMap, mazeGraph, hostname)
+func ExecuteServerHTTP(mazeMap *maze.Map, mazeGraph *maze.Graph, gm *manager.GameManager,hostname string, port int) {
+	a := player.NewPlayerApi(gm, mazeMap, mazeGraph, hostname)
 
 	go func() { // shutdown gracefully
 		sig := make(chan os.Signal, 1)

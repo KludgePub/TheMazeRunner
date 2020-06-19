@@ -51,15 +51,19 @@ func (api *HTTPServerAPI) router(w http.ResponseWriter, r *http.Request) {
 			api.handlerPlayerRegister(w, r)
 		case path == "/player/move":
 			api.handlerPlayerAcceptPath(w, r)
+		case path == "/player/interact":
+			api.handlerPlayerInteraction(w, r)
 		default:
 			api.jsonResponse(w, "not found", http.StatusNotFound)
 		}
 	case http.MethodGet:
 		switch {
+		case path == "/player/interact":
+			api.handlerPlayerInteraction(w, r)
 		case path == "/player/stats":
 			api.handlerPlayerStats(w, r)
-		case path == "/player/world":
-			api.handlerPlayerMazeData(w, r)
+		case path == "/world":
+			api.handlerWorldMazeData(w, r)
 		case path == "/":
 			api.handlerHomeDoc(w, r)
 		default:

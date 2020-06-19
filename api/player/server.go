@@ -5,14 +5,16 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/LinMAD/TheMazeRunnerServer/manager"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 )
 
 const logTag = "-> HTTP API server:"
 
 // NewPlayerApi to handle players requests
-func NewPlayerApi(mazeMap *maze.Map, mazeGraph *maze.Graph, hostname string) *HTTPServerAPI {
+func NewPlayerApi(gm *manager.GameManager, mazeMap *maze.Map, mazeGraph *maze.Graph, hostname string) *HTTPServerAPI {
 	egm := make([]string, mazeMap.Size)
+
 	i := 0
 	for _, n := range mazeGraph.Nodes {
 		egm[i] = maze.PrintGraphNode(n, false)
@@ -24,7 +26,15 @@ func NewPlayerApi(mazeMap *maze.Map, mazeGraph *maze.Graph, hostname string) *HT
 		Players:      make(map[TokenID]*Player),
 		mazeRawMap:   mazeMap,
 		mazeRawGraph: mazeGraph,
-		mazeMap:      GameMapData{egm},
+		mazeMap:      GameMapData{
+			egm,
+			map[string]maze.Point{
+				"start": mazeMap.Entrance,
+				"exit": mazeMap.Exit,
+				"key": mazeMap.Key,
+			},
+		},
+		gm: gm,
 	}
 }
 

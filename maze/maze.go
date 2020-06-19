@@ -17,6 +17,8 @@ type Map struct {
 	Walls Walls
 	// Key, Entrance, Exit locations
 	Key, Entrance, Exit Point
+	// KeyCode is unique string for key and exit
+	KeyCode string
 }
 
 // Walls inside maze map

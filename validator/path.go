@@ -4,8 +4,8 @@ import (
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 )
 
-// SolvePath show path in map
-func SolvePath(m maze.Map, from, to maze.Point) []maze.Point {
+// GetSolvedPath show path in map
+func GetSolvedPath(m maze.Map, from, to maze.Point) []maze.Point {
 	stackPath := []maze.Point{from}
 
 	g := maze.DispatchToGraph(&m)
@@ -72,6 +72,45 @@ func SolvePath(m maze.Map, from, to maze.Point) []maze.Point {
 	}
 
 	return stackPath
+}
+
+// GetPossiblePath from given path
+func GetPossiblePath(givenPath []maze.Point, g *maze.Graph) []maze.Point {
+	possiblePath := make([]maze.Point, 0)
+
+	for i := 0; i < len(givenPath); i++ {
+		var fromNode *maze.Node
+		fromPoint := givenPath[i]
+		toPoint := fromPoint
+
+		// Get node fromPoint graph
+
+		for _, n := range g.Nodes {
+			if n.Point.X == fromPoint.X && n.Point.Y == fromPoint.Y {
+				fromNode = n
+				break
+			}
+		}
+
+		// If not found, then given point not possible in maze
+		if fromNode == nil {
+			return possiblePath
+		}
+
+		if len(givenPath) > i+1 {
+			toPoint = givenPath[i+1]
+		}
+
+		// Check if fromPoint point to point move possible
+		if !isPossibleToPass(fromNode, toPoint) {
+			possiblePath = append(possiblePath, fromPoint)
+			return possiblePath
+		}
+
+		possiblePath = append(possiblePath, fromPoint)
+	}
+
+	return possiblePath
 }
 
 // IsPathPossible validate if given path by points is possible in maze

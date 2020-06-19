@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	"github.com/LinMAD/TheMazeRunnerServer/generator"
+	"github.com/LinMAD/TheMazeRunnerServer/manager"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
+	"github.com/LinMAD/TheMazeRunnerServer/validator"
 )
 
 // jsonResponse helper to wrap responses to json format
@@ -57,7 +59,7 @@ func (api *HTTPServerAPI) handlerHomeDoc(w http.ResponseWriter, r *http.Request)
 
 // handlerPlayerRegister to current game session
 func (api *HTTPServerAPI) handlerPlayerRegister(w http.ResponseWriter, r *http.Request) {
-	var p NewPlayer
+	var p Identity
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&p); err != nil {
 		log.Printf("%s unable to get body from accept path route: %v", logTag, err)
@@ -93,11 +95,6 @@ func (api *HTTPServerAPI) handlerPlayerStats(w http.ResponseWriter, r *http.Requ
 	api.jsonResponse(w, p, http.StatusOK)
 }
 
-// handlerPlayerMazeData give to player maze data to assemble: current node, right node, bottom node => 0 0, 0 1, 1 0  (x,y)
-func (api *HTTPServerAPI) handlerPlayerMazeData(w http.ResponseWriter, r *http.Request) {
-	api.jsonResponse(w, api.mazeMap.EncodedMazeNodes, http.StatusOK)
-}
-
 // handlerPlayerAcceptPath collect requested movement path from player
 func (api *HTTPServerAPI) handlerPlayerAcceptPath(w http.ResponseWriter, r *http.Request) {
 	pid := r.Header.Get(headerPlayerTokenId)
@@ -115,9 +112,71 @@ func (api *HTTPServerAPI) handlerPlayerAcceptPath(w http.ResponseWriter, r *http
 		return
 	}
 
-	p.LastMovementPath = path
+	path = append([]maze.Point{p.Location}, path...)
+	log.Printf("%s Player %s given path: %v", logTag, pid, path)
+	possiblePath := validator.GetPossiblePath(path, api.mazeRawGraph)
+	log.Printf("%s Player %s possible path: %v", logTag, pid, possiblePath)
+	p.Location = possiblePath[len(possiblePath)-1]
+	log.Printf("%s Player %s new location: %v", logTag, pid, p.Location)
+
+	api.gm.AddMovement(manager.PlayerInfo{
+		Name:            p.Identity.Name,
+		ID:              string(p.Identity.ID),
+		CurrentLocation: p.Location,
+		MovementPath:    possiblePath,
+	})
 
 	api.jsonResponse(w, "Movement path accepted", http.StatusAccepted)
 }
 
-// TODO Interaction handling with maze object like with "K" key to collect and handle race condition between players
+
+// handlerPlayerInteraction player can interact in location
+func (api *HTTPServerAPI) handlerPlayerInteraction(w http.ResponseWriter, r *http.Request) {
+	pid := r.Header.Get(headerPlayerTokenId)
+	p, pErr := api.extractPlayer(TokenID(pid))
+	if pErr != nil {
+		api.jsonResponse(w, "Player ID not found, register your self first", http.StatusBadRequest)
+		return
+	}
+
+	// Check if player in location where interaction possible
+	if p.Location != api.mazeRawMap.Key && p.Location != api.mazeRawMap.Exit {
+		api.jsonResponse(w, "Nothing to do here", http.StatusOK)
+		return
+	}
+
+	// Respond by action method
+	// Get item id
+	if r.Method == http.MethodGet && p.Location == api.mazeRawMap.Key {
+		api.jsonResponse(w, map[string]string{"item_id": api.mazeRawMap.KeyCode}, http.StatusOK)
+		return
+	}
+
+	// Check if all conditions passed for exit
+	if r.Method == http.MethodPost && p.Location == api.mazeRawMap.Exit {
+		if err := r.ParseForm(); err != nil {
+			log.Printf("%s unable to ParseForm() err: %v", logTag, err)
+			api.jsonResponse(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		log.Printf("%s, post from %s! r.PostFrom = %v\n", logTag, pid, r.PostForm)
+
+		keyCode := r.FormValue("item_id")
+		if api.mazeRawMap.KeyCode != keyCode {
+			api.jsonResponse(w, "Invalid item id or expired", http.StatusBadRequest)
+			return
+		}
+
+		api.jsonResponse(w, "Congratulations you did it!", http.StatusOK)
+		return
+	}
+
+	api.jsonResponse(w, "Are you sure about what are you doing?", http.StatusBadRequest)
+}
+
+
+// handlerWorldMazeData give to player maze data to assemble: current node, right node, bottom node => 0 0, 0 1, 1 0  (x,y)
+func (api *HTTPServerAPI) handlerWorldMazeData(w http.ResponseWriter, r *http.Request) {
+	api.jsonResponse(w, api.mazeMap, http.StatusOK)
+}

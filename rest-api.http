@@ -6,21 +6,17 @@ Content-Type: application/json;utf-8
 Cache-Control: no-cache
 
 {
-  "name": "LinMAD"
+  "name": "Player2"
 }
-
-<> 2020-06-12T021741.200.json
 
 ###
 
-GET http://localhost:80/player/world
+GET http://localhost:80/player/stats
 Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: eb7c459d-7591-2024-3bc6-aee17d553967
-
-<> 2020-06-12T021741.200.json
+PlayerID: d9c3beac-3206-c411-336d-41651b549729
 
 ###
 
@@ -29,23 +25,43 @@ Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: eb7c459d-7591-2024-3bc6-aee17d553967
+PlayerID: a35738dd-7446-f105-6d51-719042aec377
 
 [
   {
-    "x": 0,
-    "y": 0
-  },
-  {
-    "x": 0,
+    "x": 3,
     "y": 1
   },
   {
-    "x": 1,
-    "y": 1
+    "x": 3,
+    "y": 2
   }
 ]
 
-<> 2020-06-12T021741.200.json
+###
+
+GET http://localhost:80/player/interact
+Accept: */*
+Content-Type: application/json;utf-8
+Cache-Control: no-cache
+# ID must be used when you generated new player
+PlayerID: 99af1d60-4320-8379-a064-653a87a69737
+
+###
+
+POST http://localhost:80/player/interact?item_id=f5da2664-9d79-1ae6-f3a2-ea55b5a40105
+Accept: */*
+Content-Type: application/json;utf-8
+Cache-Control: no-cache
+PlayerID: 99af1d60-4320-8379-a064-653a87a69737
+
+###
+
+GET http://localhost:80/world
+Accept: */*
+Content-Type: application/json;utf-8
+Cache-Control: no-cache
+# ID must be used when you generated new player
+PlayerID: 99af1d60-4320-8379-a064-653a87a69737
 
 ###

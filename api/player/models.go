@@ -3,6 +3,7 @@ package player
 import (
 	"net/http"
 
+	"github.com/LinMAD/TheMazeRunnerServer/manager"
 	"github.com/LinMAD/TheMazeRunnerServer/maze"
 )
 
@@ -23,10 +24,11 @@ type HTTPServerAPI struct {
 	mazeRawGraph *maze.Graph
 	// mazeMap divided by nodes for player
 	mazeMap GameMapData
+	gm *manager.GameManager
 }
 
-// NewPlayer data
-type NewPlayer struct {
+// Identity data
+type Identity struct {
 	// Name of player
 	Name string `json:"name"`
 	// ID assigned to player
@@ -36,17 +38,17 @@ type NewPlayer struct {
 // Player general data
 type Player struct {
 	// Identity of the player
-	Identity NewPlayer `json:"identity"`
+	Identity Identity `json:"identity"`
 	// Location of the player
 	Location maze.Point `json:"location"`
-	// LastMovementPath how player requested to walk
-	LastMovementPath []maze.Point `json:"last_movement_path"`
 }
 
 // GameMapData
 type GameMapData struct {
 	// EncodedMazeNodes for players, contains maze nodes and neighbors
 	EncodedMazeNodes []string `json:"maze_nodes"`
+	// Locations in the maze, start, finish, key
+	Locations map[string]maze.Point `json:"locations"`
 }
 
 // response for HTTP
