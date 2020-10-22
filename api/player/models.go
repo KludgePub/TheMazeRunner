@@ -3,8 +3,8 @@ package player
 import (
 	"net/http"
 
-	"github.com/LinMAD/TheMazeRunnerServer/manager"
-	"github.com/LinMAD/TheMazeRunnerServer/maze"
+	"github.com/LinMAD/TheMazeRunner/manager"
+	"github.com/LinMAD/TheMazeRunner/maze"
 )
 
 const headerPlayerTokenId = "PlayerID"

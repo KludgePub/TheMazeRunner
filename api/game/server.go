@@ -8,7 +8,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/LinMAD/TheMazeRunnerServer/manager"
+	"github.com/LinMAD/TheMazeRunner/manager"
 )
 
 const logTag = "-> UDP API server:"

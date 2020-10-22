@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/LinMAD/TheMazeRunnerServer/manager"
-	"github.com/LinMAD/TheMazeRunnerServer/maze"
+	"github.com/LinMAD/TheMazeRunner/manager"
+	"github.com/LinMAD/TheMazeRunner/maze"
 )
 
 const logTag = "-> HTTP API server:"

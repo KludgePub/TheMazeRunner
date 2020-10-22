@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LinMAD/TheMazeRunnerServer/maze"
-	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
+	"github.com/LinMAD/TheMazeRunner/maze"
+	"github.com/LinMAD/TheMazeRunner/maze/asset"
 )
 
 var (

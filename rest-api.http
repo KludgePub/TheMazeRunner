@@ -1,67 +1,67 @@
 # Players API
 
-POST http://localhost:80/player/new
+POST http://localhost:8042/player/new
 Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 
 {
-  "name": "Player"
+  "name": "TestPlayer"
 }
 
 ###
 
-GET http://localhost:80/player/stats
+GET http://localhost:8042/player/stats
 Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: 30722a30-63c0-cd92-63c4-e53a28a7b572
+PlayerID: 4017580f-e22d-3dba-bbe7-107fbb60b7eb
 
 ###
 
-POST http://localhost:80/player/move
+POST http://localhost:8042/player/move
 Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: 30722a30-63c0-cd92-63c4-e53a28a7b572
+PlayerID:  4017580f-e22d-3dba-bbe7-107fbb60b7eb
 
 [
   {
-    "x": 1,
-    "y": 1
+    "x": 7,
+    "y": 12
   }
 ]
 
 ###
 
-GET http://localhost:80/player/interact
+GET http://localhost:8042/player/interact
 Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: 30722a30-63c0-cd92-63c4-e53a28a7b572
+PlayerID: 4017580f-e22d-3dba-bbe7-107fbb60b7eb
 
 ###
 
-POST http://localhost:80/player/interact
+POST http://localhost:8042/player/interact
 Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
-PlayerID: 30722a30-63c0-cd92-63c4-e53a28a7b572
+PlayerID: 4017580f-e22d-3dba-bbe7-107fbb60b7eb
 
 {
-  "item_id": "2b86fbf4-a681-8812-4f44-663f04399661"
+  "item_id": "4017580f-e22d-3dba-bbe7-107fbb60b7eb"
 }
 
 ###
 
-GET http://localhost:80/world
+GET http://localhost:8042/world
 Accept: */*
 Content-Type: application/json;utf-8
 Cache-Control: no-cache
 # ID must be used when you generated new player
-PlayerID: 99af1d60-4320-8379-a064-653a87a69737
+PlayerID: 4017580f-e22d-3dba-bbe7-107fbb60b7eb
 
 ###

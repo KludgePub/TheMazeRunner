@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/LinMAD/TheMazeRunnerServer/generator"
-	"github.com/LinMAD/TheMazeRunnerServer/manager"
-	"github.com/LinMAD/TheMazeRunnerServer/maze"
-	"github.com/LinMAD/TheMazeRunnerServer/validator"
+	"github.com/LinMAD/TheMazeRunner/generator"
+	"github.com/LinMAD/TheMazeRunner/manager"
+	"github.com/LinMAD/TheMazeRunner/maze"
+	"github.com/LinMAD/TheMazeRunner/validator"
 )
 
 // jsonResponse helper to wrap responses to json format

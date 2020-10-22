@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/LinMAD/TheMazeRunnerServer/maze/asset"
+	"github.com/LinMAD/TheMazeRunner/maze/asset"
 )
 
 func TestDispatch_HorizontalWall(t *testing.T) {

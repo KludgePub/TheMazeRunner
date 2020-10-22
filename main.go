@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -11,27 +12,29 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/LinMAD/TheMazeRunnerServer/api/game"
-	"github.com/LinMAD/TheMazeRunnerServer/api/player"
-	"github.com/LinMAD/TheMazeRunnerServer/generator"
-	"github.com/LinMAD/TheMazeRunnerServer/manager"
-	"github.com/LinMAD/TheMazeRunnerServer/maze"
-	"github.com/LinMAD/TheMazeRunnerServer/validator"
+	"github.com/LinMAD/TheMazeRunner/api/game"
+	"github.com/LinMAD/TheMazeRunner/api/player"
+	"github.com/LinMAD/TheMazeRunner/generator"
+	"github.com/LinMAD/TheMazeRunner/manager"
+	"github.com/LinMAD/TheMazeRunner/maze"
+	"github.com/LinMAD/TheMazeRunner/validator"
 )
 
-var isRunning = true
+var mazeSize uint
 
 func init() {
-	// TODO fix: if exec all tests this will break static data
-	rand.Seed(time.Now().UnixNano())
+	flag.UintVar(&mazeSize, "mazeSize", 20, "Set maze size by squares, default 20x20")
 }
 
 func main() {
-	row, column := 2, 2 // TODO Read from input params or json config
+	rand.Seed(time.Now().UnixNano())
+
+	quit := make(chan int)
+	row, column := mazeSize, mazeSize
 
 	log.Printf("-> Generating new maze (%dx%d)...\n", row, column)
 
-	m, mErr := CreateGameWorld(row, column)
+	m, mErr := CreateGameWorld(int(row), int(column))
 	if mErr != nil {
 		log.Fatalf("-> Unable to create game world: %v", mErr)
 	}
@@ -58,10 +61,12 @@ func main() {
 
 	gm := manager.NewGameManager(m)
 
-	go ExecuteServerHTTP(m, mg, gm, h, 80)
+	go ExecuteServerHTTP(m, mg, gm, h, 8042)
 	go ExecuteServerUDP(gm, jm)
 
-	for isRunning {
+	select {
+	case <-quit:
+		os.Exit(0)
 	}
 }
 
@@ -122,7 +127,6 @@ func ExecuteServerHTTP(mazeMap *maze.Map, mazeGraph *maze.Graph, gm *manager.Gam
 			if err := a.Shutdown(); err != nil {
 				log.Fatalf("-> HTTP API executor: Failed to shutdown server, %v", err)
 			}
-			isRunning = false
 		}
 	}()
 
