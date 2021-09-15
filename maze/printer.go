@@ -3,7 +3,7 @@ package maze
 import (
 	"fmt"
 
-	"github.com/LinMAD/TheMazeRunner/maze/asset"
+	"github.com/KludgePub/TheMazeRunner/maze/asset"
 )
 
 // String implementation to print node

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/LinMAD/TheMazeRunner/maze"
+	"github.com/KludgePub/TheMazeRunner/maze"
 )
 
 // GameManager

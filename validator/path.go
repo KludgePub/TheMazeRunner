@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"github.com/LinMAD/TheMazeRunner/maze"
+	"github.com/KludgePub/TheMazeRunner/maze"
 )
 
 // GetSolvedPath show path in map

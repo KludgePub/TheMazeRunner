@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LinMAD/TheMazeRunner/maze/asset"
+	"github.com/KludgePub/TheMazeRunner/maze/asset"
 )
 
 func init() {

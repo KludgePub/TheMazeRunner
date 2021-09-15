@@ -89,7 +89,10 @@ And yes, how to win the game? Simple, find a path from `S` (Starting point) to `
 
 #### How to use project
 
-It's totally on you, I decide to open it because it's fun to play around with that. It could be your Kata or you can use it for education session for colleagues or just grab a beer with mates and make a game :)
+It's totally on you, I decide to open it because it's fun to play around with that. 
+It could be your Kata or you can use it for education session for colleagues or just grab a beer with mates and make a game :)
+
+To build project just use `go build` there is no dependencies.
 
 Here example game client:
 

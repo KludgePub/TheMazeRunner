@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"math/rand"
 
-	"github.com/LinMAD/TheMazeRunner/maze/asset"
+	"github.com/KludgePub/TheMazeRunner/maze/asset"
 )
 
 // mazeMap by rows
